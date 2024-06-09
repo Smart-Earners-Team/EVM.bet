@@ -2,7 +2,7 @@ import { FaTwitter, FaGithub } from "react-icons/fa";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
-    const evmbetLogo = "/logo.png"
+    // const evmbetLogo = "/logo.png"
 
   return (
     <div className="grid gap-3 px-5">

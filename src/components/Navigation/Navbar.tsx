@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
 
     return (
         <>
-            <button onClick={toggleNav} className="z-10 outline-none absolute top-1/3 left-1 select-none text-xl bg-slate-50/10 hover:pl-3 p-1 duration-500 rounded-r-full">
+            <button onClick={toggleNav} className="z-10 outline-none fixed top-1/3 left-1 select-none text-xl bg-slate-50/10 hover:pl-3 p-1 duration-500 rounded-r-full">
                 <PiCaretRight
                     className={'hover:scale-105 duration-300'}
                 />
@@ -104,7 +104,7 @@ const Navbar: React.FC = () => {
                             <li key={i}>
                                 <a
                                     href={val.href}
-                                    className="px-3 py-2 rounded-md text-inherit font-semibold cursor-pointer block w-full hover:bg-purple-100 hover:text-purple-700 transition-colors duration-300"
+                                    className="px-3 py-2 rounded-md text-inherit font-semibold cursor-pointer block w-full text-cyan-700 transition-colors duration-300"
                                 >
                                     {val.title}
                                 </a>
