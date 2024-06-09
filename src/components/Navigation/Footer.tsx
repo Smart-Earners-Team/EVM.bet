@@ -12,21 +12,21 @@ const Footer = () => {
         </div>
         <div className="flex gap-x-3 text-3xl justify-center">
           <a
-            className="hover:scale-150 hover:text-gradient duration-500"
+            className="hover:scale-150 hover:text-cyan-300 duration-500"
             href="https://x.com/evmgames"
             target="_blank"
           >
             <FaTwitter />
           </a>
           {/* <a
-            className="hover:scale-150 hover:text-gradient duration-500"
+            className="hover:scale-150 hover:text-cyan-300 duration-500"
             // href=""
             target="_blank"
           >
             <FaDiscord />
           </a> */}
           <a
-            className="hover:scale-150 hover:text-gradient duration-500"
+            className="hover:scale-150 hover:text-cyan-300 duration-500"
             href="https://github.com/"
             target="_blank"
           >

@@ -10,15 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rainbow-me/rainbowkit": "^2.1.2",
     "@react-three/drei": "^9.106.0",
     "@react-three/fiber": "^8.16.8",
+    "@tanstack/react-query": "^5.40.1",
     "@types/three": "^0.165.0",
     "antd": "^5.18.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.23.1",
-    "three": "^0.165.0"
+    "three": "^0.165.0",
+    "viem": "2.x",
+    "wagmi": "^2.9.10"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

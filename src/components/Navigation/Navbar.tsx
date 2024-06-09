@@ -10,11 +10,11 @@ import { PiCaretRight } from "react-icons/pi";
 const evmbetLogo = "/logo.png";
 
 const topNavItems = [
-    { title: "Home", href: "/" },
-    { title: "About", href: "/about" },
-    { title: "Services", href: "/services" },
-    { title: "Contact", href: "/contact" },
-];
+    // { title: "Home", href: "/" },
+    // { title: "About", href: "/about" },
+    // { title: "Services", href: "/services" },
+    // { title: "Contact", href: "/contact" },
+] as { title: string, href: string }[];
 
 const Navbar: React.FC = () => {
     const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -42,17 +42,23 @@ const Navbar: React.FC = () => {
                 />
             </button>
 
-            <div className="md:px-32 px-5 fixed z-50 w-full bg-transparent backdrop-blur py-1 text-sm">
+            <div className="md:px-32 px-5 fixed z-50 w-full bg-transparent backdrop-blur py-1 mt-3 text-sm">
                 <div className="flex justify-between items-center px-5">
 
                     <div className="flex gap-x-1 select-none w-fit">
                         <Link to={'/'} children={
-                            <img
-                                src={evmbetLogo}
-                                width={60}
-                                alt="EVM.bet Logo"
-                                className="my-auto cursor-pointer"
-                            />
+                            <div className="flex items-center">
+                                <img
+                                    src={evmbetLogo}
+                                    width={60}
+                                    alt="EVM.bet Logo"
+                                    className="my-auto cursor-pointer"
+                                />
+                                <span className="md:block text-white text-xs">
+                                    <span className="text-gradient text-xl font-bold -tracking-wide">EVM.</span>
+                                    bet
+                                </span>
+                            </div>
                         } />
                     </div>
 
@@ -61,7 +67,7 @@ const Navbar: React.FC = () => {
                             <li key={i}>
                                 <a
                                     href={val.href}
-                                    className="px-4 py-3 rounded-md text-inherit cursor-pointer block w-full tracking-wide leading-10 hover:text-purple-500 duration-500"
+                                    className="px-4 py-3 rounded-md text-inherit cursor-pointer block w-full tracking-wide leading-10 hover:text-gradient duration-500"
                                 >
                                     {val.title}
                                 </a>
@@ -69,7 +75,7 @@ const Navbar: React.FC = () => {
                         ))}
                     </ul>
 
-                    <div className="md:flex md:py-3 md:gap-3">
+                    <div className="hidden md:flex md:py-3 md:gap-3">
                         <CustomConnect />
                     </div>
                 </div>
@@ -88,11 +94,19 @@ const Navbar: React.FC = () => {
                         <div
                             className="flex justify-between items-center gap-x-1 col-span-2 cursor-pointer select-none w-full"
                         >
-                            <Link to={'/'} children={<img
-                                src={evmbetLogo}
-                                width={60}
-                                alt="EVM.bet Logo"
-                            />} />
+                            <Link to={'/'} children={<div className="flex items-center">
+                                <img
+                                    src={evmbetLogo}
+                                    width={60}
+                                    alt="EVM.bet Logo"
+                                    className="my-auto cursor-pointer"
+                                />
+                                <span className="md:block text-inherit text-xs">
+                                    <span className="text-gradient text-xl font-bold -tracking-wide">EVM.</span>
+                                    bet
+                                </span>
+                            </div>
+                            } />
                             <Button
                                 type="text"
                                 icon={<CloseOutlined className="text-xl" />}
@@ -110,7 +124,7 @@ const Navbar: React.FC = () => {
                                 </a>
                             </li>
                         ))}
-                        <div className="flex md:py-3 md:gap-3">
+                        <div className="flex md:py-3 md:gap-3 items-center">
                             <CustomConnect />
                         </div>
                     </ul>

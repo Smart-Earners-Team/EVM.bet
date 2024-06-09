@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Layout } from "../components/Layout";
+import TrophyImg from "./../assets/trophy.svg";
 
-const evmbetLogo = "/logo.png"
+// const evmbetLogo = "/logo.png"
 
 const Landing = () => {
     return (
@@ -57,7 +58,7 @@ export default Landing;
 const cardProps = [
     {
         name: 'Trophy',
-        src: evmbetLogo,
+        src: TrophyImg,
         route: '/lottery',
         desc: `Playing the EVM.bet Lottery gives you a chance to win huge XTZ prizes! It's easy, fair, and you can enter as often as you like as long as you have the XTZ to buy a ticket.`
     },
