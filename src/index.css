@@ -8,10 +8,8 @@
 
 * {
     --sb-track-color: #ebecec;
-    --sb-thumb-color: #0c8ab7;
-    --sb-size: 6px; /* Adjusted size for a thinner scrollbar */
-
-    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    --sb-thumb-color: #003571;
+    --sb-size: 3px; /* Adjusted size for a thinner scrollbar */
 }
 
 *::-webkit-scrollbar {

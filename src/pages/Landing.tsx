@@ -2,20 +2,21 @@ import { Link } from "react-router-dom";
 import { Layout } from "../components/Layout";
 import TrophyImg from "./../assets/trophy.svg";
 
-// const evmbetLogo = "/logo.png"
+const evmbetLogo = "/logo.png";
 
 const Landing = () => {
     return (
         <>
             <Layout>
                 <div className="max-w-screen-lg mx-auto flex flex-col gap-10 my-6">
-                    <div className="my-6">
+                    <div className="py-6 relative">
                         <h1 className="font-black text-4xl md:text-5xl">EVM.bet Lottery</h1>
                         <p className="my-5">
                             The EVM.bet Lottery is EtherLink's number one play-to-earn game.
                             Playing gives you a chance to win huge XTZ prizes! It's easy, fair, and you can enter as often as you like as
                             long as you have the XTZ to buy a ticket.
                         </p>
+                        <img src={evmbetLogo} className="absolute p-5 -top-1/2 opacity-5 w-[100rem]" />
                     </div>
 
                     <div className="grid justify-between md:grid-cols-2 gap-5 select-none">
@@ -59,7 +60,7 @@ const cardProps = [
     {
         name: 'Trophy',
         src: TrophyImg,
-        route: '/lottery',
+        route: '/trophy',
         desc: `Playing the EVM.bet Lottery gives you a chance to win huge XTZ prizes! It's easy, fair, and you can enter as often as you like as long as you have the XTZ to buy a ticket.`
     },
 ]

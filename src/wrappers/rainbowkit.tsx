@@ -24,6 +24,10 @@ const config = getDefaultConfig({
 
 const queryClient = new QueryClient();
 
+export const defaultRPCs = [
+    "https://node.ghostnet.etherlink.com"
+  ];
+
 const theme = darkTheme({
     accentColor: '#3CB0D9',
     accentColorForeground: 'white',
