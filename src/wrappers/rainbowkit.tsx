@@ -7,9 +7,6 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import {
-    mainnet
-} from 'wagmi/chains';
-import {
     QueryClientProvider,
     QueryClient,
 } from "@tanstack/react-query";
@@ -18,14 +15,15 @@ import { testXTZ } from '../utils/customChains/chains';
 const config = getDefaultConfig({
     appName: 'EVM.bet',
     projectId: 'YOUR_PROJECT_ID',
-    chains: [testXTZ, mainnet],
+    chains: [testXTZ],
     ssr: false, // true if your dApp uses server side rendering (SSR)
 });
 
 const queryClient = new QueryClient();
 
 export const defaultRPCs = [
-    "https://node.ghostnet.etherlink.com"
+    "https://node.ghostnet.etherlink.com",
+    "https://etherlink-ghostnet-6lcp5r.zeeve.net/rpc"
   ];
 
 const theme = darkTheme({

@@ -39,7 +39,7 @@ export const checkRPCCompatibility = async (
 
 export async function findCompatibleRPC(
   rpcUrls: string[],
-  expectedChainId: number = 7000
+  expectedChainId: number = 128123
 ): Promise<string> {
   for (const rpcUrl of rpcUrls) {
     if (await checkRPCCompatibility(rpcUrl, expectedChainId)) {

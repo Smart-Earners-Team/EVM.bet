@@ -1,4 +1,4 @@
-import { useAccount, useConfig, useSwitchChain } from "wagmi"
+import { useAccount, useChainId, useConfig, useSwitchChain } from "wagmi"
 import { useCallback, useEffect, useState } from "react"
 import { FaAngleDown, FaAngleUp } from "react-icons/fa"
 import { LuArrowLeft, LuArrowRight, LuArrowRightToLine } from "react-icons/lu"
@@ -8,13 +8,13 @@ import Head from 'react-helmet';
 import { Layout } from "../components/Layout"
 import { addresses } from '../hooks/addresses';
 import { useEthersSigner } from "../hooks/wagmiSigner"
-import { getCurrentPrizeInUSD, getCurrentPrizeInZeta, getLotteryId, getLotteryInfo, Lottery } from "../hooks/Lottery/trophy"
+import { getCurrentPrizeInUSD, getCurrentprizeInXTZ, getLotteryId, getLotteryInfo, Lottery } from "../hooks/Lottery/trophy"
 import { Button, Input, Modal } from "antd"
 import { findCompatibleRPC } from "../hooks/checkRPC"
 import { lotteryABI } from "../utils/ABIs"
 import { defaultRPCs } from "../wrappers/rainbowkit"
 import TrophyImg from "../assets/trophy.svg";
-import { CustomConnect } from "../components/Wallet/Connect"
+import { CustomConnect, OnChainChange } from "../components/Wallet/Connect";
 
 const evmbetLogo = "/logo.png";
 
@@ -36,9 +36,11 @@ function generateColorHash(inputNumber: number): string {
 }
 
 const Trophy = () => {
-    const { /* address, */ chain, isConnected } = useAccount()
+    const { /* address, */ /* chain, */ isConnected } = useAccount()
 
-    const { chains } = useConfig();
+    const config = useConfig();
+    const chains = config.chains;
+    const chainId = useChainId();
 
     // console.log(chains)
 
@@ -46,15 +48,16 @@ const Trophy = () => {
 
     // console.log(nftArray)
 
-    const cID = Number(chain?.id);
-    // console.log(cID);
+    const cID = chainId || chains[0].id;
 
-    const chainSupported = useCallback(() => {
-        if (chains.some(chain => cID === chain.id)) {
-            return true
-        }
-        return false
-    }, [cID]);
+    const [isUnsupportedChain, setIsUnsupportedChain] = useState(false);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleChainChange: OnChainChange = (chain: any) => {
+        setIsUnsupportedChain(chain.unsupported);
+    };
+
+    console.log(cID);
 
     const signer = useEthersSigner({ chainId: cID })
 
@@ -69,7 +72,7 @@ const Trophy = () => {
     const [latestRoundInfo, setLatestRoundInfo] = useState<Lottery>({} as Lottery)
     const [roundInfo, setRoundInfo] = useState<Lottery>({} as Lottery)
     const [roundHistory, setRoundHistory] = useState<string>('All')
-    const [prizeInZeta, setPrizeInZeta] = useState<string>('0')
+    const [prizeInXTZ, setprizeInXTZ] = useState<string>('0')
     const [prizeInUSD, setPrizeInUSD] = useState<string>('0')
     const [moreR, setMoreR] = useState<boolean>(false)
     const [amtTicket, setamtTicket] = useState<string>('')
@@ -182,15 +185,15 @@ const Trophy = () => {
             setLatestRoundInfo(res)
         })
 
-        setPrizeInZeta(String(await getCurrentPrizeInZeta(String(roundNo), cID)))
-        // console.log(await getCurrentPrizeInZeta(String(roundNo), cID));
+        setprizeInXTZ(String(await getCurrentprizeInXTZ(String(roundNo), cID)))
+        // console.log(await getCurrentprizeInXTZ(String(roundNo), cID));
 
         setPrizeInUSD(String(await getCurrentPrizeInUSD(String(roundNo), cID)))
         // console.log(await getCurrentPrizeInUSD(String(roundNo), cID));
 
         // console.log(roundInfo);
         // console.log(latestRound);
-        console.log("prizeInZeta", prizeInZeta)
+        console.log(prizeInXTZ)
         // console.log("prizeInUSD", prizeInUSD);
     }, [roundNo])
 
@@ -295,7 +298,7 @@ const Trophy = () => {
         getRoundInfo()
     }, [getRoundInfo])
 
-    if (!chainSupported && isConnected) {
+    if (isUnsupportedChain && isConnected) {
         return (
             <div>
                 <Head>
@@ -493,7 +496,7 @@ const Trophy = () => {
                             <h1 className="text-xl font-bold">
                                 Connect your wallet to check if you've won!
                             </h1>
-                            <CustomConnect />
+                            <CustomConnect onChainChange={handleChainChange} />
                         </div>
 
                     </div>
@@ -678,7 +681,7 @@ const Trophy = () => {
 
                                             <div className="grid gap-2 py-5 text-center px-7">
                                                 <div className="text-sm">Connect your wallet to check your history!</div>
-                                                <CustomConnect />
+                                                <CustomConnect onChainChange={handleChainChange}/>
                                             </div>
 
                                             <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />

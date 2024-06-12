@@ -61,7 +61,7 @@ export const getLotteryInfo = async (
     return res;
 }
 
-export const getCurrentPrizeInZeta = async (
+export const getCurrentprizeInXTZ = async (
     roundNo: string,
     cID: number
 ) => {
@@ -78,12 +78,12 @@ export const getCurrentPrizeInUSD = async (
     roundNo: string,
     cID: number
 ) => {
-    const amtInZeta: bigint = await getCurrentPrizeInZeta(roundNo, cID);
-    // console.log(amtInZeta);
+    const amtInXTZ: bigint = await getCurrentprizeInXTZ(roundNo, cID);
+    // console.log(amtInXTZ);
 
-    const zetaPrice = 2.1;
+    const Price = 2.1;
 
-    const prizeInUSD = Number(amtInZeta) * zetaPrice;
+    const prizeInUSD = Number(amtInXTZ) * Price;
 
     return prizeInUSD;
 };
