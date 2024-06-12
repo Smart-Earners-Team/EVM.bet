@@ -457,21 +457,21 @@ const Trophy = () => {
                                         <div className="text-xs">Match the winning number in the same order to share prizes. Current prizes up for grabs:</div>
                                         <div className="grid justify-between grid-cols-3 gap-5 md:grid-cols-4">
                                             {
-                                                moreArr.map((val, i) => (
+                                                latestRoundInfo.rewardsBreakdown.map((val, i) => (
                                                     <div key={i} className="grid text-sm justify-items-start">
                                                         <div className="text-xs font-bold text-cyan-500">
-                                                            {val.name}
+                                                            Match First {i+1}
                                                         </div>
                                                         <div className="space-x-2">
                                                             <span className="text-base font-semibold">
-                                                                {val.value}
+                                                                {Number(val)}
                                                             </span>
                                                             <span className="text-sm">
-                                                                {val.symbol}
+                                                                XTZ
                                                             </span>
                                                         </div>
                                                         <div className="text-xs opacity-85">
-                                                            ~${val.usd.toLocaleString()}
+                                                            {/* ~${val.usd.toLocaleString()} */}
                                                         </div>
                                                     </div>
                                                 ))
