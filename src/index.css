@@ -7,9 +7,9 @@
 @tailwind utilities;
 
 * {
-    --sb-track-color: #ebecec;
-    --sb-thumb-color: #003571;
-    --sb-size: 3px; /* Adjusted size for a thinner scrollbar */
+    --sb-track-color: #bddbe7;
+    --sb-thumb-color: #022750;
+    --sb-size: 5px; /* Adjusted size for a thinner scrollbar */
 }
 
 *::-webkit-scrollbar {
@@ -19,18 +19,18 @@
 
 *::-webkit-scrollbar-track {
     background: var(--sb-track-color);
-    border-radius: 3px; /* Adjusted border-radius */
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -ms-border-radius: 3px;
-    -o-border-radius: 3px;
+    border-radius: 5px; /* Adjusted border-radius */
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
 }
 
 *::-webkit-scrollbar-thumb {
     background: var(--sb-thumb-color);
-    border-radius: 3px; /* Adjusted border-radius */
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -ms-border-radius: 3px;
-    -o-border-radius: 3px;
+    border-radius: 10px; /* Adjusted border-radius */
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
 }

@@ -8,13 +8,14 @@ import Head from 'react-helmet';
 import { Layout } from "../components/Layout"
 import { addresses } from '../hooks/addresses';
 import { useEthersSigner } from "../hooks/wagmiSigner"
-import { getCurrentPrizeInUSD, getCurrentprizeInXTZ, getLotteryId, getLotteryInfo, Lottery } from "../hooks/Lottery/trophy"
+import { getCurrentPrizeInUSD, getCurrentprizeInXTZ, getLastLotteryId, getLotteryId, getLotteryInfo, Lottery } from "../hooks/Lottery/trophy"
 import { Button, Input, Modal } from "antd"
 import { findCompatibleRPC } from "../hooks/checkRPC"
 import { lotteryABI } from "../utils/ABIs"
 import { defaultRPCs } from "../wrappers/rainbowkit"
 import TrophyImg from "../assets/trophy.svg";
 import { CustomConnect, OnChainChange } from "../components/Wallet/Connect";
+import { formatTimestamp } from "../hooks/formatTime";
 
 const evmbetLogo = "/logo.png";
 
@@ -50,14 +51,14 @@ const Trophy = () => {
 
     const cID = chainId || chains[0].id;
 
-    const [isUnsupportedChain, setIsUnsupportedChain] = useState(false);
+    const [isUnsupportedChain, setIsUnsupportedChain] = useState<boolean>(false);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleChainChange: OnChainChange = (chain: any) => {
         setIsUnsupportedChain(chain.unsupported);
     };
 
-    console.log(cID);
+    // console.log(cID);
 
     const signer = useEthersSigner({ chainId: cID })
 
@@ -68,6 +69,7 @@ const Trophy = () => {
     }
 
     const [latestRound, setLatestRound] = useState<number>(0)
+    const [lastRound, setLastRound] = useState<number>(0)
     const [roundNo, setRoundNo] = useState<number>(latestRound)
     const [latestRoundInfo, setLatestRoundInfo] = useState<Lottery>({} as Lottery)
     const [roundInfo, setRoundInfo] = useState<Lottery>({} as Lottery)
@@ -76,7 +78,7 @@ const Trophy = () => {
     const [prizeInUSD, setPrizeInUSD] = useState<string>('0')
     const [moreR, setMoreR] = useState<boolean>(false)
     const [amtTicket, setamtTicket] = useState<string>('')
-    const [buyModalOpen, setBuyModalOpen] = useState<boolean>(true)
+    const [buyModalOpen, setBuyModalOpen] = useState<boolean>(false)
     const [mainButtonText, setMainButtonText] = useState<string>("")
     const [isApproved, /*setIsApproved*/] = useState<boolean>(false)
     const [isApprovalLoading, setIsApprovalLoading] = useState<boolean>(false)
@@ -172,18 +174,18 @@ const Trophy = () => {
 
     const getData = useCallback(async () => {
         const lotID = await getLotteryId(cID, await findCompatibleRPC(defaultRPCs, cID))
+        const lastID = await getLastLotteryId(cID, await findCompatibleRPC(defaultRPCs, cID))
         setLatestRound(Number(lotID))
+        setLastRound(Number(lastID))
         setRoundNo(Number(lotID))
     }, [cID])
 
     const getRoundInfo = useCallback(async () => {
-        await getLotteryInfo(String(roundNo), cID, await findCompatibleRPC(defaultRPCs, cID)).then((res: Lottery) => {
-            setRoundInfo(res)
-        })
+        const res1 = await getLotteryInfo(String(roundNo), cID, await findCompatibleRPC(defaultRPCs, cID))
+        const res2 = await getLotteryInfo(String(latestRound), cID, await findCompatibleRPC(defaultRPCs, cID))
 
-        await getLotteryInfo(String(latestRound), cID, await findCompatibleRPC(defaultRPCs, cID)).then((res: Lottery) => {
-            setLatestRoundInfo(res)
-        })
+        setRoundInfo(res1)
+        setLatestRoundInfo(res2)
 
         setprizeInXTZ(String(await getCurrentprizeInXTZ(String(roundNo), cID)))
         // console.log(await getCurrentprizeInXTZ(String(roundNo), cID));
@@ -192,6 +194,9 @@ const Trophy = () => {
         // console.log(await getCurrentPrizeInUSD(String(roundNo), cID));
 
         // console.log(roundInfo);
+
+        console.log(JSON.parse(JSON.stringify(roundInfo, (_, v) =>
+            typeof v === 'bigint' ? Number(v) : v)));
         // console.log(latestRound);
         console.log(prizeInXTZ)
         // console.log("prizeInUSD", prizeInUSD);
@@ -354,11 +359,11 @@ const Trophy = () => {
             <Layout>
                 <div className="flex flex-col max-w-screen-lg gap-10 mx-auto my-6">
 
-                    <div className='grid justify-between grid-cols-5 gap-2 text-center align-middle select-none md:grid-cols-3'>
+                    <div className='grid justify-center gap-2 text-center align-middle select-none'>
 
-                        <div className="col-span-3 md:col-span-1">
-                            <h1 className="text-2xl font-bold text-center">EVM.bet Trophy</h1>
-                            <div className="my-2 text-4xl font-black text-center md:text-5xl text-cyan-500">
+                        <div className="grid items-center justify-center">
+                            <h1 className="text-2xl font-bold">EVM.bet Trophy</h1>
+                            <div className="my-2 text-4xl font-black md:text-6xl text-cyan-500 text-ellipsis truncate" title={`$${Number(prizeInUSD).toLocaleString()}`}>
                                 {`$${Number(prizeInUSD).toLocaleString()}`}
                             </div>
                             <div className="text-xl font-semibold">in Prizes!</div>
@@ -366,7 +371,7 @@ const Trophy = () => {
                                 src={TrophyImg}
                                 alt={'trophy'}
                                 loading="lazy"
-                                className='pointer-events-none'
+                                className='w-[30rem] pointer-events-none mx-auto -my-5'
                             />
                         </div>
                     </div>
@@ -392,32 +397,36 @@ const Trophy = () => {
                             </div>
                         </div>
 
-                        <div className="max-w-2xl shadow min-w-80 rounded-3xl bg-cyan-900 backdrop-blur-sm text-cyan-50">
+                        <div className="max-w-2xl shadow min-w-80 rounded-3xl bg-cyan-900/30 backdrop-blur-sm text-cyan-50">
                             <div className="grid items-center justify-between grid-flow-col py-5 px-7 bg-cyan-950/50 rounded-t-3xl">
                                 <div className="hidden text-base font-black md:block">Next Draw</div>
                                 <div className="text-xs">
-                                    #{latestRound} | Draw: {new Date(Number(latestRoundInfo.startTime)).toUTCString()}
+                                    #{latestRound} | Drawn: {latestRoundInfo.endTime > BigInt(0) && (
+                                        `${formatTimestamp(Number(latestRoundInfo.endTime)).formattedDate} | ${formatTimestamp(Number(latestRoundInfo.endTime)).formattedTime}`
+                                    )}
                                 </div>
                             </div>
 
                             <div className="grid gap-5 py-5 text-center px-7">
                                 <div className="grid md:gap-5 md:grid-flow-col justify-items-center md:justify-start">
                                     <div className="self-start py-0.5 font-bold text-base">
-                                        Prize Pot
+                                        Prize Pot:
                                     </div>
                                     <div className="grid self-start gap-1">
-                                        <div className="text-3xl font-bold text-cyan-200">
+                                        <div className="text-3xl font-bold text-cyan-200 text-ellipsis truncate">
                                             ~${Number(prizeInUSD).toLocaleString()}
                                         </div>
                                         <div className="text-xs md:self-start">
-                                            {Number(roundInfo.amountCollectedInMetis).toLocaleString()} XTZ
+                                            {
+                                                roundInfo.amountCollectedInMetis > BigInt(0) ? Number(ethers.formatEther(roundInfo.amountCollectedInMetis)).toLocaleString() : 0
+                                            }{" "}XTZ
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="grid text-sm md:gap-5 md:grid-flow-col">
-                                    <div className="self-start py-0.5 font-bold text-base">
-                                        Your Tickets
+                                <div className="grid text-sm md:gap-5 md:grid-flow-col items-center">
+                                    <div className="py-0.5 font-bold text-base">
+                                        Your Tickets:
                                     </div>
                                     <div className="grid justify-items-center">
                                         <div className="space-x-1">
@@ -427,11 +436,11 @@ const Trophy = () => {
                                                 name="ticket"
                                                 id="ticket"
                                                 className="w-20 px-3 py-1 text-sm font-semibold border-2 outline-none rounded-2xl text-cyan-800 border-cyan-500 inset-5"
-                                                min={0}
+                                                min={1}
                                                 max={5}
                                                 inputMode="numeric"
                                             />
-                                            <span>ticket this round</span>
+                                            <span>ticket(s) in this round</span>
                                         </div>
                                     </div>
                                     <button onClick={() => setBuyModalOpen(true)} className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100">
@@ -492,7 +501,7 @@ const Trophy = () => {
 
                     <div className='grid justify-around gap-8'>
 
-                        <div className={`grid self-center place-items-center gap-2 p-8 text-center shadow w-5xl bg-cyan-50 text-cyan-800 rounded-xl`} >
+                        <div className={`grid self-center place-items-center gap-2 p-8 text-center shadow w-5xl border-2 border-dashed border-cyan-500/50 text-cyan-50 rounded-xl`} >
                             <h1 className="text-xl font-bold">
                                 Connect your wallet to check if you've won!
                             </h1>
@@ -519,7 +528,7 @@ const Trophy = () => {
                             {
                                 roundHistory === 'All' && (
                                     <>
-                                        <div className="max-w-3xl shadow min-w-80 rounded-3xl bg-cyan-900 backdrop-blur-sm text-cyan-50">
+                                        <div className="max-w-3xl shadow min-w-80 rounded-3xl bg-cyan-900/30 backdrop-blur-sm text-cyan-50">
                                             <div className="grid items-center justify-between grid-flow-col py-5 px-7 bg-cyan-950/50 rounded-t-3xl">
                                                 <div className='grid gap-2'>
                                                     <div className="grid grid-flow-col gap-0.5 items-center">
@@ -547,14 +556,16 @@ const Trophy = () => {
                                                         />
                                                     </div>
                                                     <div className="text-xs">
-                                                        Drawn {new Date(Number(roundInfo.startTime)).toUTCString()}
+                                                        Drawn {roundInfo.endTime > BigInt(0) && (
+                                                            `${formatTimestamp(Number(roundInfo.endTime)).formattedDate} | ${formatTimestamp(Number(roundInfo.endTime)).formattedTime}`
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className='grid grid-flow-col gap-2'>
-                                                    <button onClick={() => roundNo > 0 && setRoundNo(roundNo - 1)} className="text-xl disabled:cursor-not-allowed disabled:opacity-50" disabled={roundNo === 0}>
+                                                    <button onClick={() => roundNo > 1 && setRoundNo(roundNo - 1)} className="text-xl disabled:cursor-not-allowed disabled:opacity-50" disabled={roundNo === 0}>
                                                         <LuArrowLeft />
                                                     </button>
-                                                    <button onClick={() => roundNo >= 0 && setRoundNo(roundNo + 1)} className="text-xl disabled:cursor-not-allowed disabled:opacity-50" disabled={roundNo === latestRound}>
+                                                    <button onClick={() => roundNo >= 1 && setRoundNo(roundNo + 1)} className="text-xl disabled:cursor-not-allowed disabled:opacity-50" disabled={roundNo === latestRound}>
                                                         <LuArrowRight />
                                                     </button>
                                                     <button onClick={() => setRoundNo(1000)} className="text-xl disabled:cursor-not-allowed disabled:opacity-50" disabled>
@@ -589,7 +600,7 @@ const Trophy = () => {
                                                             ))
                                                         }
                                                         {
-                                                            roundNo === latestRound && <div className='absolute px-2 py-1 text-xs font-semibold tracking-wide uppercase rotate-[30deg] -right-6 -top-5 text-cyan-900/80 w-fit bg-cyan-50 h-fit rounded-3xl'>Latest</div>
+                                                            roundNo === lastRound && <div className='absolute px-2 py-1 text-xs font-semibold tracking-wide uppercase rotate-[30deg] -right-6 -top-5 text-cyan-900/80 w-fit bg-cyan-50 h-fit rounded-3xl'>Latest</div>
                                                         }
                                                     </div>
                                                 </div>
@@ -605,16 +616,16 @@ const Trophy = () => {
                                                                 <div className="self-start text-base font-bold">
                                                                     Prize Pot
                                                                 </div>
-                                                                <div className="text-3xl font-bold text-cyan-200">
+                                                                <div className="text-3xl font-bold text-cyan-200 text-ellipsis truncate">
                                                                     ~${Number(prizeInUSD).toLocaleString()}
                                                                 </div>
                                                                 <div className="text-xs md:self-start">
                                                                     {(11543).toLocaleString()} XTZ
                                                                 </div>
                                                             </div>
-                                                            <div className="text-xs font-bold text-cyan-50">
+                                                            {/* <div className="text-xs font-bold text-cyan-50">
                                                                 Total Players this round: {312}
-                                                            </div>
+                                                            </div> */}
                                                         </div>
 
                                                         <div className="grid gap-5">
@@ -668,7 +679,7 @@ const Trophy = () => {
                             {
                                 roundHistory === 'User' && (
                                     <>
-                                        <div className="max-w-3xl shadow min-w-80 rounded-3xl bg-cyan-900 backdrop-blur-sm text-cyan-50">
+                                        <div className="max-w-3xl shadow min-w-80 rounded-3xl bg-cyan-900/30 backdrop-blur-sm text-cyan-50">
                                             <div className="grid py-5 px-7 bg-cyan-950/50 rounded-t-3xl">
                                                 <div className='grid gap-2'>
                                                     <div className="grid gap-0.5 items-center">
@@ -681,7 +692,7 @@ const Trophy = () => {
 
                                             <div className="grid gap-2 py-5 text-center px-7">
                                                 <div className="text-sm">Connect your wallet to check your history!</div>
-                                                <CustomConnect onChainChange={handleChainChange}/>
+                                                <CustomConnect onChainChange={handleChainChange} />
                                             </div>
 
                                             <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
@@ -883,8 +894,12 @@ const Trophy = () => {
             </Layout>
 
             <Modal
+                className="m-auto"
                 open={buyModalOpen}
-                onCancel={() => setBuyModalOpen(false)}
+                onCancel={() => {
+                    setBuyModalOpen(false);
+                    setEditLot(false)
+                }}
                 footer={null}
                 title={editLot ? 'Edit Numbers' : 'Buy Tickets'}
             >
@@ -1033,16 +1048,16 @@ const Trophy = () => {
 
                             {isConnected ? (
                                 <div className="grid gap-2 pt-5 text-sm">
-                                    <Button
+                                    <button
                                         onClick={handleApprovalOrBuy}
                                         className={`${(amtTicket === "" || Number(amtTicket) === 0 || isApprovalLoading) && "opacity-50"} bg-cyan-800 hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
                                         disabled={amtTicket === "" || Number(amtTicket) === 0 || isApprovalLoading}
                                     >
                                         <div className="w-full">{mainButtonText}</div>
                                         <div className={`${isApprovalLoading ? "my-auto border border-x-cyan-700 w-5 h-5 rounded-full animate-spin" : "hidden"}`} />
-                                    </Button>
+                                    </button>
                                     {!isApproved && (
-                                        <Button
+                                        <button
                                             className={`${(amtTicket === "" || Number(amtTicket) === 0 || isApprovalLoading) && "opacity-50"} bg-cyan-800 items-center hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
                                             disabled={amtTicket === "" || Number(amtTicket) === 0 || isApprovalLoading}
                                             onClick={() => setEditLot(true)}
@@ -1050,12 +1065,12 @@ const Trophy = () => {
                                             <div className="w-full">
                                                 View/Edit Numbers
                                             </div>
-                                        </Button>
+                                        </button>
                                     )}
                                 </div>
                             ) : (
                                 <div className="grid mx-2 mt-2 justify-items-center">
-                                    {/* CustomConnect component */}
+                                    <CustomConnect />
                                 </div>
                             )}
 

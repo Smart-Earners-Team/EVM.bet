@@ -10,12 +10,12 @@ import {
     QueryClientProvider,
     QueryClient,
 } from "@tanstack/react-query";
-import { testXTZ } from '../utils/customChains/chains';
+import { MainnetZTestnet, testXTZ } from '../utils/customChains/chains';
 
 const config = getDefaultConfig({
     appName: 'EVM.bet',
     projectId: 'YOUR_PROJECT_ID',
-    chains: [testXTZ],
+    chains: [testXTZ, MainnetZTestnet],
     ssr: false, // true if your dApp uses server side rendering (SSR)
 });
 
@@ -23,7 +23,8 @@ const queryClient = new QueryClient();
 
 export const defaultRPCs = [
     "https://node.ghostnet.etherlink.com",
-    "https://etherlink-ghostnet-6lcp5r.zeeve.net/rpc"
+    "https://etherlink-ghostnet-6lcp5r.zeeve.net/rpc",
+    "https://testnet-rpc.mainnetz.io",
   ];
 
 const theme = darkTheme({

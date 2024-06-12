@@ -196,3 +196,40 @@ export const EtherlinkMainnetBeta : Chain = {
         },
     },
 } as const satisfies Chain;
+
+export const MainnetZTestnet: Chain = {
+    id: 9768,
+    name: "MainnetZ Testnet",
+    iconUrl:
+      "https://s2.coinmarketcap.com/static/img/coins/200x200/28659.png",
+    nativeCurrency: {
+        name: "tMainnetZ",
+        symbol: "tNetZ",
+        decimals: 18,
+    },
+    rpcUrls: {
+      public: {
+        http: ["https://testnet-rpc.mainnetz.io"],
+      },
+      default: {
+        http: ["https://testnet-rpc.mainnetz.io"],
+      },
+    },
+    blockExplorers: {
+      etherscan: {
+        name: "MainnetZ Scan",
+        url: "https://testnet.mainnetz.io/",
+      },
+      default: {
+        name: "MainnetZ Scan",
+        url: "https://testnet.mainnetz.io/",
+      },
+    },
+    contracts: {
+      multicall3: {
+        address: "0xa7f3d2dea7a53e7a9febbde5cf7c69d39d065030",
+        blockCreated: 18451533,
+      },
+    },
+  } as const satisfies Chain;
+  

@@ -44,6 +44,27 @@ export const getLotteryId = async (
     return res;
 }
 
+export const getLastLotteryId = async (
+    cID: number,
+    rpcUrl: string
+) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const contract = useContractInitializer({
+        rpc: rpcUrl,
+        contractABI: lotteryABI,
+        contractAddress: addresses.lottery[cID],
+    });
+
+    const res = await contract.viewCurrentLotteryId();
+    // console.log(res);
+
+    for (let i = Number(res); i >= 0; i--) {
+        const lottery: Lottery = await getLotteryInfo(String(i), cID, rpcUrl);
+        if (lottery.finalNumber > BigInt(0)) return i;
+    }
+    return 0;
+}
+
 export const getLotteryInfo = async (
     roundNo: string,
     cID: number,
@@ -68,17 +89,17 @@ export const getCurrentprizeInXTZ = async (
     const lotteryInfo: Lottery = await getLotteryInfo(roundNo, cID, await findCompatibleRPC(defaultRPCs, cID));
 
     if (lotteryInfo.amountCollectedInMetis) {
-        return ethers.parseEther(String(lotteryInfo.amountCollectedInMetis));
+        return ethers.formatEther(String(lotteryInfo.amountCollectedInMetis));
     }
 
-    return BigInt(0);
+    return String(0);
 }
 
 export const getCurrentPrizeInUSD = async (
     roundNo: string,
     cID: number
 ) => {
-    const amtInXTZ: bigint = await getCurrentprizeInXTZ(roundNo, cID);
+    const amtInXTZ: string = await getCurrentprizeInXTZ(roundNo, cID);
     // console.log(amtInXTZ);
 
     const Price = 2.1;

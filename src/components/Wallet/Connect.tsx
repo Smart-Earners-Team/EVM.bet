@@ -13,7 +13,7 @@ interface Chain {
 
 export type OnChainChange = (chain: Chain) => void;
 
-const Connect = ({ onChainChange }: {onChainChange?: OnChainChange}) => {
+const Connect = ({ onChainChange }: { onChainChange?: OnChainChange }) => {
     return (
         <ConnectButton.Custom>
             {({
