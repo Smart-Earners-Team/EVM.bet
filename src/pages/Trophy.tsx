@@ -464,7 +464,7 @@ const Trophy = () => {
                                                         </div>
                                                         <div className="space-x-2">
                                                             <span className="text-base font-semibold">
-                                                                {Number(val)}
+                                                                {((Number(val)/10000) * Number(ethers.formatEther(latestRoundInfo.amountCollectedInMetis))).toFixed(3)}
                                                             </span>
                                                             <span className="text-sm">
                                                                 XTZ
@@ -632,21 +632,21 @@ const Trophy = () => {
                                                             <div className="text-xs">Match the winning number in the same order to share prizes. Current prizes up for grabs:</div>
                                                             <div className="grid justify-between grid-cols-3 gap-5 md:grid-cols-4">
                                                                 {
-                                                                    moreArr.map((val, i) => (
+                                                                    roundInfo.rewardsBreakdown.map((val, i) => (
                                                                         <div key={i} className="grid text-sm justify-items-start">
                                                                             <div className="text-xs font-bold text-cyan-500">
-                                                                                {val.name}
+                                                                            Match First {i+1}
                                                                             </div>
                                                                             <div className="space-x-2">
                                                                                 <span className="text-base font-semibold">
-                                                                                    {val.value}
+                                                                                {((Number(val)/10000) * Number(ethers.formatEther(roundInfo.amountCollectedInMetis))).toFixed(3)}
                                                                                 </span>
                                                                                 <span className="text-sm">
-                                                                                    {val.symbol}
+                                                                                    XTZ
                                                                                 </span>
                                                                             </div>
                                                                             <div className="text-xs opacity-85">
-                                                                                ~${val.usd.toLocaleString()}
+                                                                                {/* ~${val.usd.toLocaleString()} */}
                                                                             </div>
                                                                         </div>
                                                                     ))
@@ -1087,47 +1087,47 @@ const Trophy = () => {
 
 export default Trophy;
 
-const moreArr = [
-    {
-        name: 'Match First 1',
-        value: 278,
-        symbol: 'XTZ',
-        usd: 11849
-    },
-    {
-        name: 'Match First 2',
-        value: 278,
-        symbol: 'XTZ',
-        usd: 11849
-    },
-    {
-        name: 'Match First 3',
-        value: 278,
-        symbol: 'XTZ',
-        usd: 11849
-    },
-    {
-        name: 'Match First 4',
-        value: 278,
-        symbol: 'XTZ',
-        usd: 11849
-    },
-    {
-        name: 'Match First 5',
-        value: 278,
-        symbol: 'XTZ',
-        usd: 11849
-    },
-    {
-        name: 'Match First 6',
-        value: 278,
-        symbol: 'XTZ',
-        usd: 11849
-    },
-    {
-        name: 'Burn',
-        value: 278,
-        symbol: 'XTZ',
-        usd: 11849
-    },
-]
+// const moreArr = [
+//     {
+//         name: 'Match First 1',
+//         value: 278,
+//         symbol: 'XTZ',
+//         usd: 11849
+//     },
+//     {
+//         name: 'Match First 2',
+//         value: 278,
+//         symbol: 'XTZ',
+//         usd: 11849
+//     },
+//     {
+//         name: 'Match First 3',
+//         value: 278,
+//         symbol: 'XTZ',
+//         usd: 11849
+//     },
+//     {
+//         name: 'Match First 4',
+//         value: 278,
+//         symbol: 'XTZ',
+//         usd: 11849
+//     },
+//     {
+//         name: 'Match First 5',
+//         value: 278,
+//         symbol: 'XTZ',
+//         usd: 11849
+//     },
+//     {
+//         name: 'Match First 6',
+//         value: 278,
+//         symbol: 'XTZ',
+//         usd: 11849
+//     },
+//     {
+//         name: 'Burn',
+//         value: 278,
+//         symbol: 'XTZ',
+//         usd: 11849
+//     },
+// ]
