@@ -87,4 +87,36 @@ async function changeRandomizer({
   console.log(amtGas);
 }
 
-export { buyTickets, claimTickets, changeRandomizer };
+async function findMyTickets({ userAddr, lotteryId, cursor, size, cID,
+    rpcUrl }: {
+    userAddr: string, lotteryId: string, cursor: number, size: number, cID: number,
+    rpcUrl: string
+}) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const contract = useContractInitializer({
+        rpc: rpcUrl,
+        contractABI: lotteryABI,
+        contractAddress: addresses.lottery[cID],
+    });
+
+    const res = await contract.viewUserInfoForLotteryId(userAddr, lotteryId, cursor, size);
+
+    return {
+        ticketIDs: res[0],
+        ticketNumbers: res[1],
+        ticketClaimStatus: res[2],
+        totalTickets: res[3]
+    } as {
+        ticketIDs: bigint[],
+        ticketNumbers: bigint[],
+        ticketClaimStatus: boolean[],
+        totalTickets: bigint
+    };
+}
+
+export {
+    buyTickets,
+    claimTickets,
+    changeRandomizer,
+    findMyTickets
+}

@@ -1,7 +1,7 @@
 import '@rainbow-me/rainbowkit/styles.css';
 import {
     darkTheme,
-    DisclaimerComponent,
+    // DisclaimerComponent,
     getDefaultConfig,
     RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
@@ -41,7 +41,7 @@ export const RainbowKit = ({ children }: { children: React.ReactNode }) => {
             <QueryClientProvider client={queryClient}>
                 <RainbowKitProvider coolMode theme={theme} appInfo={{
                     appName: "EVM.bet",
-                    disclaimer: Disclaimer
+                    // disclaimer: Disclaimer
                 }}>
                     {children}
                 </RainbowKitProvider>
@@ -50,12 +50,12 @@ export const RainbowKit = ({ children }: { children: React.ReactNode }) => {
     )
 }
 
-const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
-    <Text>
-      By connecting your wallet, you agree to the{' '}
-      <Link href="https://termsofservice.xyz">Terms of Service</Link> and
-      acknowledge you have read and understand the protocol{' '}
-      <Link href="https://disclaimer.xyz">Disclaimer</Link>
-    </Text>
-  );
+// const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
+//     <Text>
+//       By connecting your wallet, you agree to the{' '}
+//       <Link href="https://termsofservice.xyz">Terms of Service</Link> and
+//       acknowledge you have read and understand the protocol{' '}
+//       <Link href="https://disclaimer.xyz">Disclaimer</Link>
+//     </Text>
+//   );
   

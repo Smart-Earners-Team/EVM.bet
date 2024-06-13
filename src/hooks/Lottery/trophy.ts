@@ -108,6 +108,7 @@ export const calculatePrizeForBulkTickets = async (
   cID: number,
   rpcUrl: string
 ) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const contract = useContractInitializer({
     rpc: rpcUrl,
     contractABI: lotteryABI,
