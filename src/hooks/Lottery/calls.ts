@@ -23,8 +23,8 @@ async function buyTickets({
     contractAddress: addresses.lottery[cID],
   });
 
-  console.log(lotteryId);
-  console.log(ticketNumbers);
+  // console.log(lotteryId);
+  // console.log(ticketNumbers);
 
   const res = await contract.buyTickets(lotteryId, ticketNumbers, {
     value: ethers.parseEther(amount),
@@ -55,9 +55,9 @@ async function claimTickets({
 
   await contract.claimTickets(lotteryId, ticketsIdArray, brackets);
 
-  console.log(lotteryId);
-  console.log(ticketsIdArray);
-  console.log(brackets);
+  // console.log(lotteryId);
+  // console.log(ticketsIdArray);
+  // console.log(brackets);
 }
 
 async function changeRandomizer({
@@ -82,9 +82,9 @@ async function changeRandomizer({
 
   await contract.changeRandomizer(rndAddress, gasLimit, amtGas);
 
-  console.log(rndAddress);
-  console.log(gasLimit);
-  console.log(amtGas);
+  // console.log(rndAddress);
+  // console.log(gasLimit);
+  // console.log(amtGas);
 }
 
 async function findMyTickets({ userAddr, lotteryId, cursor, size, cID,

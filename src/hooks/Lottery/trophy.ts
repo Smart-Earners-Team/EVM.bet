@@ -115,7 +115,7 @@ export const calculatePrizeForBulkTickets = async (
     contractAddress: addresses.lottery[cID],
   });
 
-  const res: Lottery = await contract.calculateTotalPriceForBulkTickets(
+  const res: bigint = await contract.calculateTotalPriceForBulkTickets(
     discountDivisor,
     ticketPrice,
     ticketsNumber

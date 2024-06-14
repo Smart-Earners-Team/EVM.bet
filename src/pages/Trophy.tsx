@@ -6,17 +6,18 @@ import { Link } from "react-router-dom"
 import { ethers } from "ethers"
 import Head from 'react-helmet';
 import { Layout } from "../components/Layout"
-import { addresses } from '../hooks/addresses';
-import { useEthersSigner } from "../hooks/wagmiSigner"
-import { getCurrentPrizeInUSD, getCurrentprizeInXTZ, getLastLotteryId, getLotteryId, getLotteryInfo, Lottery } from "../hooks/Lottery/trophy"
+// import { addresses } from '../hooks/addresses';
+// import { useEthersSigner } from "../hooks/wagmiSigner";
+import { calculatePrizeForBulkTickets, getCurrentPrizeInUSD, getCurrentprizeInXTZ, getLastLotteryId, getLotteryId, getLotteryInfo, Lottery } from "../hooks/Lottery/trophy"
 import { Button, Input, Modal } from "antd"
 import { findCompatibleRPC } from "../hooks/checkRPC"
-import { lotteryABI } from "../utils/ABIs"
+// import { lotteryABI } from "../utils/ABIs"
 import { defaultRPCs } from "../wrappers/rainbowkit"
 import TrophyImg from "../assets/trophy.svg";
 import { CustomConnect, OnChainChange } from "../components/Wallet/Connect";
 import { formatTimestamp } from "../hooks/formatTime";
 import { findMyTickets } from "../hooks/Lottery/calls"
+import { getTokenBalance } from "../hooks/getDetails"
 
 const evmbetLogo = "/logo.png";
 
@@ -63,7 +64,8 @@ const Trophy = () => {
 
     // console.log(cID);
 
-    const signer = useEthersSigner({ chainId: cID })
+    // const signer = useEthersSigner({ chainId: cID })
+    // console.log(signer)
 
     const [more, setMore] = useState<boolean>(false)
 
@@ -84,8 +86,11 @@ const Trophy = () => {
     const [amtTicketInRound, setamtTicketInRound] = useState<string>('0')
     const [buyModalOpen, setBuyModalOpen] = useState<boolean>(false)
     const [mainButtonText, setMainButtonText] = useState<string>("")
-    const [isApproved, /*setIsApproved*/] = useState<boolean>(false)
-    const [isApprovalLoading, setIsApprovalLoading] = useState<boolean>(false)
+    const [isBuyLoading, setisBuyLoading] = useState<boolean>(false);
+
+    const [bulkTicketDiscount, setBulkTicketDiscount] = useState<{ data: string, cost: string, discountXTZ: string, discountPercentage: string }>({} as { data: string, cost: string, discountXTZ: string, discountPercentage: string });
+    
+    const [baseBalance, setBaseBalance] = useState<string>("0.00");
     // const [ _txReceipt, _setReceipt ] = useState<txReceipt>( {
     //     hash: "",
     //     status: false,
@@ -134,15 +139,6 @@ const Trophy = () => {
         const newDigitsArr = Array.from({ length: Number(amtTicket) || 1 }, generateRandomDigitsArray)
         setDigitsArr(newDigitsArr)
     }, [amtTicket])
-
-    // useEffect to run randomize whenever a duplicate array is found
-    //useEffect( () =>
-    //{
-    //    if ( hasDuplicateArrays( digitsArr ) )
-    //    {
-    //        randomizeAll()
-    //    }
-    //}, [ randomizeAll ] )
 
     // Handler for randomizing the entire array of arrays
     const randomizeAll = () => {
@@ -206,50 +202,9 @@ const Trophy = () => {
         // console.log("prizeInUSD", prizeInUSD);
     }, [roundNo])
 
-    const handleApprove = async () => {
-        console.log("handling Approval")
-        setIsApprovalLoading(true)
-        try {
-            const contract = new ethers.Contract(addresses.lottery[cID], lotteryABI, signer)
-
-            // const fees = await signer.provider.getFeeData();
-            // // console.log(fees);
-
-            // const gas =
-            //   fees.maxFeePerGas && fees.maxPriorityFeePerGas
-            //     ? fees.maxFeePerGas + fees.maxPriorityFeePerGas
-            //     : fees.gasPrice;
-
-            const approve = await contract?.approve(
-                addresses.lottery[cID],
-                ethers.parseEther('')
-                // { gasPrice: gas }
-            )
-
-            await approve.wait()
-
-            /*const appr = await checkApproval(
-                XTZToken.address,
-                String(address),
-                addresses.VotingEscrow[cID],
-                inputValue,
-                String(rpcUrl)
-            );
-
-
-            // console.log("first", appr);
-
-            setIsApproved(appr);*/
-            setIsApprovalLoading(false)
-        } catch (error) {
-            console.error(error)
-            setIsApprovalLoading(false)
-        }
-    }
-
     const handleBuy = async () => {
         console.log('buying')
-        setIsApprovalLoading(true)
+        setisBuyLoading(true)
         // console.log("create lock");
 
         try {
@@ -263,41 +218,28 @@ const Trophy = () => {
             );*/
 
             // console.log(res)
-            setIsApprovalLoading(false)
+            setisBuyLoading(false)
             /*setReceipt(res.receipt);*/
         } catch (error) {
             console.error(error)
-            setIsApprovalLoading(false)
+            setisBuyLoading(false)
         }
     }
 
     const handleApprovalOrBuy = async () => {
-        console.log('status: ', isApproved)
-        !isApproved ? await handleApprove() : await handleBuy()
+        await handleBuy()
     }
 
     useEffect(() => {
         const updateMainButtonText = () => {
             amtTicket !== "" && Number(amtTicket) > 0
-                ? isApproved
-                    ? setMainButtonText("Confirm Swap")
-                    : setMainButtonText("Approve")
+                ? Number(amtTicket) === 1
+                    ? setMainButtonText("Buy Ticket")
+                    : setMainButtonText("Buy Tickets")
                 : setMainButtonText("Enter a valid amount!")
-
-            // if (
-            //     name1.address === baseToken.address &&
-            //     name2?.address === wrappedTokens[cID]
-            // ) {
-            //     setMainButtonText(`Wrap ${name1.symbol}`);
-            // } else if (
-            //     name2?.address === baseToken.address &&
-            //     name1.address === wrappedTokens[cID]
-            // ) {
-            //     setMainButtonText(`Unwrap ${name2?.symbol}`);
-            // }
         }
         updateMainButtonText()
-    }, [amtTicket, isApproved])
+    }, [amtTicket])
 
     const fetchTicketInRound = async () => {
         const res = await findMyTickets({
@@ -312,6 +254,20 @@ const Trophy = () => {
         setamtTicketInRound(String(Number(res.totalTickets)));
     }
 
+    const fetchBulkTicketDiscount = async () => {
+        const res = Number(amtTicket) > 0
+            ? await calculatePrizeForBulkTickets(latestRoundInfo.discountDivisor, latestRoundInfo.priceTicketInMetis, Number(amtTicket), cID, await findCompatibleRPC(defaultRPCs, cID))
+            : BigInt(0);
+
+        const result = {
+            data: ethers.formatEther(res),
+            cost: (Number(ethers.formatEther(latestRoundInfo.priceTicketInMetis)) * Number(amtTicket)).toLocaleString(),
+            discountXTZ: "",
+            discountPercentage: (Number(bulkTicketDiscount.data) / (Number(ethers.formatEther(latestRoundInfo.priceTicketInMetis)) * Number(amtTicket))).toFixed(3)
+        }
+        setBulkTicketDiscount(result)
+    }
+
     useEffect(() => {
         getData()
     }, [getData])
@@ -323,6 +279,20 @@ const Trophy = () => {
     useEffect(() => {
         fetchTicketInRound()
     }, [latestRound])
+
+    useEffect(() => {
+        fetchBulkTicketDiscount()
+    }, [amtTicket])
+
+    useEffect(() => {
+        const fetchBalance = async () => {
+            const res: string = await getTokenBalance(String(address), ethers.ZeroAddress, await findCompatibleRPC(defaultRPCs, cID));
+            // console.log(res);
+            setBaseBalance(res);
+        }
+        const intervalId = setInterval(fetchBalance, 3000)
+        return () => clearInterval(intervalId);
+    }, [address, cID])
 
     if (isUnsupportedChain && isConnected) {
         return (
@@ -929,7 +899,7 @@ const Trophy = () => {
                         <div className="p-5 rounded-md">
                             <div className="flex justify-end items-end mb-2 gap-2">
                                 <div className="font-semibold opacity-70 text-sm mb-0.5">Total cost:</div>
-                                <div className="text-cyan-800 font-semibold text-lg">~{`1.69`} <small>XTZ</small></div>
+                                <div className="text-cyan-800 font-semibold text-lg">~{bulkTicketDiscount.data} <small>XTZ</small></div>
                             </div>
                             <div className="text-gray-700 mb-4">
                                 Numbers are randomized, with no duplicates among your tickets. Tap a number to edit it. Available digits: 0-9
@@ -984,7 +954,7 @@ const Trophy = () => {
 
                         <div className="grid gap-1 px-5">
                             <div className="border-2 group-focus:border-4 border-cyan-400 rounded-2xl p-5 grid gap-0.5 justify-items-end">
-                                <Input
+                                <input
                                     type="text"
                                     autoFocus
                                     className="w-full px-1 text-2xl truncate border-none outline-none caret-cyan-700 text-ellipsis text-end"
@@ -1004,26 +974,28 @@ const Trophy = () => {
                                     inputMode="decimal"
                                 />
                                 <span className='text-xs'>
-                                    ~{0.00} XTZ
+                                    ~{bulkTicketDiscount.data} XTZ
                                 </span>
                             </div>
                             <div className="px-2 text-xs text-end opacity-90 text-cyan-950">
                                 XTZ Balance:{" "}
                                 <span className='font-bold'>
-                                    {0}
+                                    {Number(baseBalance).toLocaleString()}
                                 </span>
                             </div>
-                            <div className="px-2 mb-2 -mt-0.5 text-xs italic text-orange-600 text-end">
-                                {`Insufficient ${'XTZ'} Balance`}
-                            </div>
+                            {Number(baseBalance) < Number(bulkTicketDiscount.data) && (
+                                <div className="px-2 mb-2 -mt-0.5 text-xs italic text-orange-600 text-end">
+                                    {`Insufficient ${'XTZ'} Balance`}
+                                </div>
+                            )}
 
                             <div className="flex justify-between gap-2 px-3 text-sm">
-                                <Button className="w-full rounded-xl bg-cyan-500 text-cyan-200 py-0.5 px-5 hover:opacity-90 duration-500 hover:text-cyan-50" onClick={() => setamtTicket("1")}>
+                                <button className="w-full rounded-xl bg-cyan-500 text-cyan-200 py-0.5 px-5 hover:opacity-90 duration-500 hover:text-cyan-50" onClick={() => setamtTicket("1")}>
                                     1
-                                </Button>
-                                <Button className="w-full rounded-xl bg-cyan-500 text-cyan-200 py-0.5 px-5 hover:opacity-90 duration-500 hover:text-cyan-50">
+                                </button>
+                                <button className="w-full rounded-xl bg-cyan-500 text-cyan-200 py-0.5 px-5 hover:opacity-90 duration-500 hover:text-cyan-50">
                                     Max
-                                </Button>
+                                </button>
                             </div>
 
                             <div className="grid items-center justify-between grid-flow-col px-3 text-sm opacity-75">
@@ -1031,7 +1003,7 @@ const Trophy = () => {
                                     Cost (XTZ)
                                 </p>
                                 <p className='uppercase'>
-                                    {`0.0`}{" "}
+                                    {bulkTicketDiscount.cost || 0}{" "}
                                     <span className="text-xs">
                                         XTZ
                                     </span>
@@ -1041,14 +1013,14 @@ const Trophy = () => {
                             <div className="grid items-center justify-between grid-flow-col px-3 text-sm opacity-75">
                                 <div className='flex items-center gap-1 text-sm w-fit'>
                                     <strong>
-                                        {'0'}%
+                                        {bulkTicketDiscount.discountPercentage || 0}%
                                     </strong>{" "}
                                     <span className="flex items-center gap-1 text-xs w-fit">
                                         Bulk discount
                                     </span>
                                 </div>
                                 <p className='uppercase'>
-                                    ~{`0.0`}{" "}
+                                    ~{bulkTicketDiscount.discountXTZ || 0}{" "}
                                     <span className="text-xs">
                                         XTZ
                                     </span>
@@ -1060,7 +1032,7 @@ const Trophy = () => {
                                     You pay
                                 </div>
                                 <p className='font-bold uppercase opacity-95'>
-                                    ~{`0.0`}{" "}
+                                    ~{bulkTicketDiscount.data}{" "}
                                     <span className="text-xs font-normal">
                                         XTZ
                                     </span>
@@ -1071,23 +1043,21 @@ const Trophy = () => {
                                 <div className="grid gap-2 pt-5 text-sm">
                                     <button
                                         onClick={handleApprovalOrBuy}
-                                        className={`${(amtTicket === "" || Number(amtTicket) === 0 || isApprovalLoading) && "opacity-50"} bg-cyan-800 hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
-                                        disabled={amtTicket === "" || Number(amtTicket) === 0 || isApprovalLoading}
+                                        className={`${(amtTicket === "" || Number(amtTicket) === 0 || isBuyLoading) && "opacity-50"} bg-cyan-800 hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
+                                        disabled={amtTicket === "" || Number(amtTicket) === 0 || isBuyLoading}
                                     >
                                         <div className="w-full">{mainButtonText}</div>
-                                        <div className={`${isApprovalLoading ? "my-auto border border-x-cyan-700 w-5 h-5 rounded-full animate-spin" : "hidden"}`} />
+                                        <div className={`${isBuyLoading ? "my-auto border border-x-cyan-700 w-5 h-5 rounded-full animate-spin" : "hidden"}`} />
                                     </button>
-                                    {!isApproved && (
-                                        <button
-                                            className={`${(amtTicket === "" || Number(amtTicket) === 0 || isApprovalLoading) && "opacity-50"} bg-cyan-800 items-center hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
-                                            disabled={amtTicket === "" || Number(amtTicket) === 0 || isApprovalLoading}
-                                            onClick={() => setEditLot(true)}
-                                        >
-                                            <div className="w-full">
-                                                View/Edit Numbers
-                                            </div>
-                                        </button>
-                                    )}
+                                    <button
+                                        className={`${(amtTicket === "" || Number(amtTicket) === 0 || isBuyLoading) && "opacity-50"} bg-cyan-800 items-center hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
+                                        disabled={amtTicket === "" || Number(amtTicket) === 0 || isBuyLoading}
+                                        onClick={() => setEditLot(true)}
+                                    >
+                                        <div className="w-full">
+                                            View/Edit Numbers
+                                        </div>
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="grid mx-2 mt-2 justify-items-center">
@@ -1107,48 +1077,3 @@ const Trophy = () => {
 }
 
 export default Trophy;
-
-// const moreArr = [
-//     {
-//         name: 'Match First 1',
-//         value: 278,
-//         symbol: 'XTZ',
-//         usd: 11849
-//     },
-//     {
-//         name: 'Match First 2',
-//         value: 278,
-//         symbol: 'XTZ',
-//         usd: 11849
-//     },
-//     {
-//         name: 'Match First 3',
-//         value: 278,
-//         symbol: 'XTZ',
-//         usd: 11849
-//     },
-//     {
-//         name: 'Match First 4',
-//         value: 278,
-//         symbol: 'XTZ',
-//         usd: 11849
-//     },
-//     {
-//         name: 'Match First 5',
-//         value: 278,
-//         symbol: 'XTZ',
-//         usd: 11849
-//     },
-//     {
-//         name: 'Match First 6',
-//         value: 278,
-//         symbol: 'XTZ',
-//         usd: 11849
-//     },
-//     {
-//         name: 'Burn',
-//         value: 278,
-//         symbol: 'XTZ',
-//         usd: 11849
-//     },
-// ]
