@@ -6,8 +6,6 @@ import { Link } from "react-router-dom";
 import { ethers } from "ethers";
 import Head from "react-helmet";
 import { Layout } from "../components/Layout";
-// import { addresses } from '../hooks/addresses';
-// import { useEthersSigner } from "../hooks/wagmiSigner";
 import {
   calculatePrizeForBulkTickets,
   getCurrentPrizeInUSD,
@@ -24,7 +22,7 @@ import { defaultRPCs } from "../wrappers/rainbowkit";
 import TrophyImg from "../assets/trophy.svg";
 import { CustomConnect, OnChainChange } from "../components/Wallet/Connect";
 import { formatTimestamp } from "../hooks/formatTime";
-import { findMyTickets } from "../hooks/Lottery/calls";
+import { buyTickets, findMyTickets } from "../hooks/Lottery/calls";
 import { getTokenBalance } from "../hooks/getDetails";
 
 const evmbetLogo = "/logo.png";
@@ -73,7 +71,6 @@ const Trophy = () => {
   // console.log(cID);
 
   // const signer = useEthersSigner({ chainId: cID })
-  // console.log(signer)
 
   const [more, setMore] = useState<boolean>(false);
 
@@ -243,22 +240,33 @@ const Trophy = () => {
     // console.log("prizeInUSD", prizeInUSD);
   }, [roundNo]);
 
+  digitsArr.forEach(val => {
+    if (Array.isArray(val)) {
+      const arr = val.map(item => Number(item))
+      console.log(arr)
+      return;
+    }
+    const arr = Number(val);
+    console.log(arr);
+    return;
+  })
+
   const handleBuy = async () => {
     console.log("buying");
     setisBuyLoading(true);
-    // console.log("create lock");
 
     try {
-      /*const res = await createLock(
-                signer,
-                cID,
-                ethers.parseEther(inputValue),
-                stakeDuration * 7 * 86400
-                // max = 125798400
-                // gpt4 = 126144000
-            );*/
+      const res = await buyTickets(
+        {
+          lotteryId: String(latestRound),
+          ticketNumbers: [0],
+          amount: "",
+          cID: cID,
+          rpcUrl: await findCompatibleRPC(defaultRPCs, cID)
+        }
+      );
 
-      // console.log(res)
+      console.log(res)
       setisBuyLoading(false);
       /*setReceipt(res.receipt);*/
     } catch (error) {
@@ -300,14 +308,14 @@ const Trophy = () => {
       const res =
         Number(amtTicket) > 0
           ? ethers.formatEther(
-              await calculatePrizeForBulkTickets(
-                latestRoundInfo.discountDivisor,
-                latestRoundInfo.priceTicketInMetis,
-                Number(amtTicket),
-                cID,
-                await findCompatibleRPC(defaultRPCs, cID)
-              )
+            await calculatePrizeForBulkTickets(
+              latestRoundInfo.discountDivisor,
+              latestRoundInfo.priceTicketInMetis,
+              Number(amtTicket),
+              cID,
+              await findCompatibleRPC(defaultRPCs, cID)
             )
+          )
           : String(0);
 
       const discountPercent = ((cost - Number(res)) / cost) * 100;
@@ -439,12 +447,10 @@ const Trophy = () => {
                 <div className="text-xs">
                   #{latestRound} | Drawn:{" "}
                   {latestRoundInfo.endTime > BigInt(0) &&
-                    `${
-                      formatTimestamp(Number(latestRoundInfo.endTime))
-                        .formattedDate
-                    } | ${
-                      formatTimestamp(Number(latestRoundInfo.endTime))
-                        .formattedTime
+                    `${formatTimestamp(Number(latestRoundInfo.endTime))
+                      .formattedDate
+                    } | ${formatTimestamp(Number(latestRoundInfo.endTime))
+                      .formattedTime
                     }`}
                 </div>
               </div>
@@ -461,8 +467,8 @@ const Trophy = () => {
                     <div className="text-xs md:self-start">
                       {roundInfo.amountCollectedInMetis > BigInt(0)
                         ? Number(
-                            ethers.formatEther(roundInfo.amountCollectedInMetis)
-                          ).toLocaleString()
+                          ethers.formatEther(roundInfo.amountCollectedInMetis)
+                        ).toLocaleString()
                         : 0}{" "}
                       XTZ
                     </div>
@@ -565,21 +571,19 @@ const Trophy = () => {
               <div className="grid grid-flow-col gap-1.5 text-sm bg-cyan-900 rounded-3xl p-0.5 font-semibold leading-tight mt-3">
                 <button
                   onClick={() => setRoundHistory("All")}
-                  className={`px-3 py-2 tracking-wide duration-300 ${
-                    roundHistory === "All"
-                      ? "bg-cyan-50 text-cyan-800"
-                      : "text-cyan-200"
-                  } rounded-3xl hover:opacity-75 shadow-xl`}
+                  className={`px-3 py-2 tracking-wide duration-300 ${roundHistory === "All"
+                    ? "bg-cyan-50 text-cyan-800"
+                    : "text-cyan-200"
+                    } rounded-3xl hover:opacity-75 shadow-xl`}
                 >
                   All History
                 </button>
                 <button
                   onClick={() => setRoundHistory("User")}
-                  className={`px-3 py-2 tracking-wide duration-300 ${
-                    roundHistory === "User"
-                      ? "bg-cyan-50 text-cyan-800"
-                      : "text-cyan-200"
-                  } rounded-3xl hover:opacity-75 shadow-xl`}
+                  className={`px-3 py-2 tracking-wide duration-300 ${roundHistory === "User"
+                    ? "bg-cyan-50 text-cyan-800"
+                    : "text-cyan-200"
+                    } rounded-3xl hover:opacity-75 shadow-xl`}
                 >
                   Your History
                 </button>
@@ -618,12 +622,10 @@ const Trophy = () => {
                         <div className="text-xs">
                           Drawn{" "}
                           {roundInfo.endTime > BigInt(0) &&
-                            `${
-                              formatTimestamp(Number(roundInfo.endTime))
-                                .formattedDate
-                            } | ${
-                              formatTimestamp(Number(roundInfo.endTime))
-                                .formattedTime
+                            `${formatTimestamp(Number(roundInfo.endTime))
+                              .formattedDate
+                            } | ${formatTimestamp(Number(roundInfo.endTime))
+                              .formattedTime
                             }`}
                         </div>
                       </div>
@@ -1211,12 +1213,11 @@ const Trophy = () => {
                 <div className="grid gap-2 pt-5 text-sm">
                   <button
                     onClick={handleBuy}
-                    className={`${
-                      (amtTicket === "" ||
-                        Number(amtTicket) === 0 ||
-                        isBuyLoading) &&
+                    className={`${(amtTicket === "" ||
+                      Number(amtTicket) === 0 ||
+                      isBuyLoading) &&
                       "opacity-50"
-                    } bg-cyan-800 hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
+                      } bg-cyan-800 hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
                     disabled={
                       amtTicket === "" ||
                       Number(amtTicket) === 0 ||
@@ -1225,20 +1226,18 @@ const Trophy = () => {
                   >
                     <div className="w-full">{mainButtonText}</div>
                     <div
-                      className={`${
-                        isBuyLoading
-                          ? "my-auto border border-x-cyan-700 w-5 h-5 rounded-full animate-spin"
-                          : "hidden"
-                      }`}
+                      className={`${isBuyLoading
+                        ? "my-auto border border-x-cyan-700 w-5 h-5 rounded-full animate-spin"
+                        : "hidden"
+                        }`}
                     />
                   </button>
                   <button
-                    className={`${
-                      (amtTicket === "" ||
-                        Number(amtTicket) === 0 ||
-                        isBuyLoading) &&
+                    className={`${(amtTicket === "" ||
+                      Number(amtTicket) === 0 ||
+                      isBuyLoading) &&
                       "opacity-50"
-                    } bg-cyan-800 items-center hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
+                      } bg-cyan-800 items-center hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
                     disabled={
                       amtTicket === "" ||
                       Number(amtTicket) === 0 ||
