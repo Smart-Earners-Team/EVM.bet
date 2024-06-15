@@ -211,8 +211,6 @@ const Trophy = () => {
     setLatestRound(Number(lotID));
     setLastRound(Number(lastID));
     setRoundNo(Number(lotID));
-
-    getData()
   }, [cID, address]);
 
   const getRoundInfo = useCallback(async () => {
@@ -243,8 +241,6 @@ const Trophy = () => {
     // console.log(latestRound);
     // console.log(prizeInXTZ)
     // console.log("prizeInUSD", prizeInUSD);
-
-    getRoundInfo()
   }, [roundNo]);
 
   const handleBuy = async () => {
@@ -323,13 +319,13 @@ const Trophy = () => {
     }
   };
 
-//   useEffect(() => {
-//     getData();
-//   }, [getData]);
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
-//   useEffect(() => {
-//     getRoundInfo();
-//   }, [getRoundInfo]);
+  useEffect(() => {
+    getRoundInfo();
+  }, [getRoundInfo]);
 
   useEffect(() => {
     fetchTicketInRound();
