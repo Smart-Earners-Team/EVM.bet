@@ -16,7 +16,7 @@ const Landing = () => {
                             Playing gives you a chance to win huge XTZ prizes! It's easy, fair, and you can enter as often as you like as
                             long as you have the XTZ to buy a ticket.
                         </p>
-                        <img src={evmbetLogo} className="absolute p-5 -top-1/2 opacity-5 w-[100rem]" />
+                        <img src={evmbetLogo} className="absolute p-5 -top-1/2 opacity-5 w-[100rem] z-0" />
                     </div>
 
                     <div className="grid justify-between md:grid-cols-2 gap-5 select-none">
@@ -32,7 +32,7 @@ const Landing = () => {
                                     />
                                 </div>
 
-                                <div className="app-bg text-blue-50 backdrop-blur rounded-b-xl rounded-t-[30%] p-8 grid gap-2 place-items-center shadow-xl">
+                                <div className="bg text-blue-50 backdrop-blur rounded-b-xl rounded-t-[30%] p-8 grid gap-2 place-items-center shadow-xl">
                                     <div className="font-bold text-lg">{item.name}</div>
 
                                     <div className="font-sans text-sm">{item.desc}</div>

@@ -263,7 +263,8 @@ const Trophy = () => {
         }
       );
 
-      console.log(res)
+      console.log(res);
+
       setisBuyLoading(false);
       /*setReceipt(res.receipt);*/
     } catch (error) {
@@ -630,7 +631,7 @@ const Trophy = () => {
                         <button
                           onClick={() => roundNo > 1 && setRoundNo(roundNo - 1)}
                           className="text-xl disabled:cursor-not-allowed disabled:opacity-50"
-                          disabled={roundNo === 0}
+                          disabled={roundNo <= 1}
                         >
                           <LuArrowLeft />
                         </button>
