@@ -143,13 +143,13 @@ const Trophy = () => {
 
   // State to store the array of arrays of random digits
   const [digitsArr, setDigitsArr] = useState<string[][]>(
-    Array.from({ length: Number(amtTicket) || 1 }, generateRandomDigitsArray)
+    Array.from({ length: Number(amtTicket) }, generateRandomDigitsArray)
   );
 
   // useEffect to update digitsArr whenever amtTicket changes
   useEffect(() => {
     const newDigitsArr = Array.from(
-      { length: Number(amtTicket) || 1 },
+      { length: Number(amtTicket) },
       generateRandomDigitsArray
     );
     setDigitsArr(newDigitsArr);
@@ -159,7 +159,7 @@ const Trophy = () => {
   const randomizeAll = () => {
     do {
       const newDigitsArr = Array.from(
-        { length: Number(amtTicket) || 1 },
+        { length: Number(amtTicket) },
         generateRandomDigitsArray
       );
       setDigitsArr(newDigitsArr);
@@ -240,16 +240,13 @@ const Trophy = () => {
     // console.log("prizeInUSD", prizeInUSD);
   }, [roundNo]);
 
-  digitsArr.forEach(val => {
-    if (Array.isArray(val)) {
-      const arr = val.map(item => Number(item))
-      console.log(arr)
-      return;
-    }
-    const arr = Number(val);
-    console.log(arr);
-    return;
-  })
+  const ticketNumbers = digitsArr.length > 0 ? digitsArr.map(val => {
+    const newArr = val.map(item => Number(item));
+    newArr.unshift(1);
+    return newArr;
+  }) : [];
+
+  // console.log(ticketNumbers);
 
   const handleBuy = async () => {
     console.log("buying");
@@ -259,8 +256,8 @@ const Trophy = () => {
       const res = await buyTickets(
         {
           lotteryId: String(latestRound),
-          ticketNumbers: [0],
-          amount: "",
+          ticketNumbers: ticketNumbers,
+          amount: ethers.formatEther(bulkTicketDiscount),
           cID: cID,
           rpcUrl: await findCompatibleRPC(defaultRPCs, cID)
         }

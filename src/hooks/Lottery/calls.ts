@@ -11,7 +11,7 @@ async function buyTickets({
   rpcUrl,
 }: {
   lotteryId: string;
-  ticketNumbers: number[];
+  ticketNumbers: number[][];
   cID: number;
   amount: string;
   rpcUrl: string;
