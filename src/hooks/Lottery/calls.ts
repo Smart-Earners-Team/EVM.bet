@@ -3,35 +3,51 @@ import { lotteryABI } from "../../utils/ABIs";
 import { addresses } from "../addresses";
 import { useContractInitializer } from "../useEthers";
 
-async function buyTickets({
-  lotteryId,
-  ticketNumbers,
-  amount,
-  cID,
-  rpcUrl,
-}: {
-  lotteryId: string;
-  ticketNumbers: number[][];
-  cID: number;
-  amount: string;
-  rpcUrl: string;
-}) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const contract = useContractInitializer({
-    rpc: rpcUrl,
-    contractABI: lotteryABI,
-    contractAddress: addresses.lottery[cID],
+export interface txReceipt {
+  hash: string;
+  status: boolean;
+}
+
+function flattenArray(arr: number[][]): number[] {
+  return arr.map(subArr => {
+
+    const concatenated = subArr.join('');
+    return parseInt(concatenated, 10);
   });
+}
+
+const buyTickets = async (lotteryId: string, ticketNumbers: number[][], amount: string, cID: number, signer: ethers.JsonRpcSigner) => {
+  // console.log(lotteryId)
+  // console.log(ticketNumbers)
+  // console.log(amount) /* 0.399 */
+
+  const tk = flattenArray(ticketNumbers);
+  // console.log(tk);
+
+  const contract = new ethers.Contract(
+    addresses.lottery[cID],
+    lotteryABI,
+    signer
+  );
+
+  // console.log(contract);
 
   // console.log(lotteryId);
   // console.log(ticketNumbers);
 
-  const res = await contract.buyTickets(lotteryId, ticketNumbers, {
+  const tx = await contract.buyTickets(lotteryId, tk, {
     value: ethers.parseEther(amount),
   });
 
-  await res.wait();
-}
+  const receipt = await tx.wait();
+
+  const res: txReceipt = {
+    hash: receipt.hash,
+    status: receipt.status === 1 ? true : false,
+  };
+
+  return res;
+};
 
 async function claimTickets({
   lotteryId,
@@ -88,35 +104,63 @@ async function changeRandomizer({
 }
 
 async function findMyTickets({ userAddr, lotteryId, cursor, size, cID,
-    rpcUrl }: {
+  rpcUrl }: {
     userAddr: string, lotteryId: string, cursor: number, size: number, cID: number,
-    rpcUrl: string
+    rpcUrl: string;
+  }) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const contract = useContractInitializer({
+    rpc: rpcUrl,
+    contractABI: lotteryABI,
+    contractAddress: addresses.lottery[cID],
+  });
+
+  const res = await contract.viewUserInfoForLotteryId(userAddr, lotteryId, cursor, size);
+
+  return {
+    ticketIDs: res[0],
+    ticketNumbers: res[1],
+    ticketClaimStatus: res[2],
+    totalTickets: res[3]
+  } as {
+    ticketIDs: bigint[],
+    ticketNumbers: bigint[],
+    ticketClaimStatus: boolean[],
+    totalTickets: bigint;
+  };
+}
+
+async function viewRewardsForTicketId({
+  lotteryId,
+  ticketId,
+  bracket,
+  cID,
+  rpcUrl,
+}: {
+  lotteryId: string;
+  ticketId: bigint;
+  bracket: bigint;
+  cID: number;
+  rpcUrl: string;
 }) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const contract = useContractInitializer({
-        rpc: rpcUrl,
-        contractABI: lotteryABI,
-        contractAddress: addresses.lottery[cID],
-    });
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const contract = useContractInitializer({
+    rpc: rpcUrl,
+    contractABI: lotteryABI,
+    contractAddress: addresses.lottery[cID],
+  });
 
-    const res = await contract.viewUserInfoForLotteryId(userAddr, lotteryId, cursor, size);
+  return await contract.viewRewardsForTicketId(lotteryId, ticketId, bracket) as bigint;
 
-    return {
-        ticketIDs: res[0],
-        ticketNumbers: res[1],
-        ticketClaimStatus: res[2],
-        totalTickets: res[3]
-    } as {
-        ticketIDs: bigint[],
-        ticketNumbers: bigint[],
-        ticketClaimStatus: boolean[],
-        totalTickets: bigint
-    };
+  // console.log(lotteryId);
+  // console.log(ticketsIdArray);
+  // console.log(brackets);
 }
 
 export {
-    buyTickets,
-    claimTickets,
-    changeRandomizer,
-    findMyTickets
-}
+  buyTickets,
+  claimTickets,
+  changeRandomizer,
+  findMyTickets,
+  viewRewardsForTicketId
+};
