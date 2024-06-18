@@ -29,6 +29,7 @@ import { TiLinkOutline, TiTick, TiWarning } from "react-icons/ti";
 import { shortenAddress } from "../hooks/shortenAddress";
 import { TfiTicket } from "react-icons/tfi";
 import { RiErrorWarningLine } from "react-icons/ri";
+import hourGlass from "../assets/hourglassNewColored.gif";
 
 const evmbetLogo = "/logo.png";
 
@@ -48,6 +49,11 @@ function generateColorHash(inputNumber: number): string {
 
   return `#${redHex}${greenHex}${cyanHex}`;
 }
+
+type BracketResult = {
+  bracket: number;
+  result: bigint;
+};
 
 const Trophy = () => {
   const { address, chain, isConnected } = useAccount();
@@ -97,8 +103,12 @@ const Trophy = () => {
   const [moreR, setMoreR] = useState<boolean>(false);
   const [amtTicket, setamtTicket] = useState<string>("0");
   const [amtTicketInRound, setamtTicketInRound] = useState<string>("0");
+  const [winningTicketsInRound, setWinningTicketsInRound] = useState<{
+    [key: string]: BracketResult[];
+  }>({});
   const [buyModalOpen, setBuyModalOpen] = useState<boolean>(false);
   const [myTicketModalOpen, setMyTicketModalOpen] = useState<boolean>(false);
+  const [myTicket2ModalOpen, setMyTicket2ModalOpen] = useState<boolean>(false);
   const [mainButtonText, setMainButtonText] = useState<string>("");
   const [isBuyLoading, setisBuyLoading] = useState<boolean>(false);
 
@@ -309,22 +319,6 @@ const Trophy = () => {
     });
     // console.log(res.totalTickets)
 
-    const a = res.ticketIDs.map(async id => {
-      for (let i = 0; i < res.ticketIDs.length; i++) {
-        const res:bigint = await viewRewardsForTicketId({
-          ticketId: id,
-          cID: cID,
-          rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
-          lotteryId: String(latestRound),
-          bracket: latestRoundInfo.rewardsBreakdown[i]
-        });
-
-        return res
-      }
-    })
-
-    console.log(a);
-
     setTicketNumbersInRound(() => {
       // console.log(arr);
       return res.ticketNumbers.map(val =>
@@ -336,7 +330,37 @@ const Trophy = () => {
           .split("")
       );
     });
+    
     setamtTicketInRound(String(Number(res.totalTickets)));
+
+    const results: { [key: string]: BracketResult[]; } = {};
+
+    for (let i = 0; i < res.ticketIDs.length; i++) {
+      const ticketId = res.ticketIDs[i].toString();
+      const bracketResults: BracketResult[] = [];
+
+      for (let j = 0; j < 7; j++) {
+        const result: bigint = await viewRewardsForTicketId({
+          ticketId: BigInt(ticketId),
+          cID: cID,
+          rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
+          lotteryId: String(latestRound),
+          bracket: BigInt(j)
+        });
+
+        if (result > BigInt(0)) {
+          bracketResults.push({ bracket: j, result });
+        }
+      }
+
+      if (bracketResults.length > 0) {
+        results[ticketId] = bracketResults;
+      }
+    }
+
+    // console.log(results);
+    // console.log('Total number of results:', Object.keys(results).length);
+    setWinningTicketsInRound(results);
   };
 
   const fetchBulkTicketDiscount = async () => {
@@ -478,143 +502,171 @@ const Trophy = () => {
           </div>
 
           <div className="grid justify-around gap-8">
-            <div className="grid gap-2 text-center">
-              <h1 className="text-2xl font-black">Get your tickets now!</h1>
-              <div className="items-center space-x-2 text-3xl">
-                <span className="space-x-3 font-black text-cyan-500">
-                  <span className="space-x-1">
-                    <span>3</span>
-                    <span className="text-xl">h</span>
-                  </span>
-                  <span className="space-x-1">
-                    <span>45</span>
-                    <span className="text-xl">m</span>
-                  </span>
-                </span>
-                <span className="text-lg">until the draw</span>
-              </div>
-            </div>
-
-            <div className="max-w-2xl shadow min-w-80 rounded-3xl bg-cyan-900/30 backdrop-blur-sm text-cyan-50">
-              <div className="grid items-center justify-between grid-flow-col py-5 px-7 bg-cyan-950/50 rounded-t-3xl">
-                <div className="hidden text-base font-black md:block">
-                  Next Draw
-                </div>
-                <div className="text-xs">
-                  #{latestRound} | Drawn:{" "}
-                  {latestRoundInfo.endTime > BigInt(0) &&
-                    `${formatTimestamp(Number(latestRoundInfo.endTime))
-                      .formattedDate
-                    } | ${formatTimestamp(Number(latestRoundInfo.endTime))
-                      .formattedTime
-                    }`}
-                </div>
-              </div>
-
-              <div className="grid gap-5 py-5 text-center px-7">
-                <div className="grid md:gap-5 md:grid-flow-col justify-items-center md:justify-start">
-                  <div className="self-start py-0.5 font-bold text-base">
-                    Prize Pot:
+            {
+              Number(latestRoundInfo.endTime) > Date.now() && (
+                <div className="grid gap-2 text-center">
+                  <h1 className="text-2xl font-black">Get your tickets now!</h1>
+                  <div className="items-center space-x-2 text-3xl">
+                    <span className="space-x-3 font-black text-cyan-500">
+                      <span className="space-x-1">
+                        <span>3</span>
+                        <span className="text-xl">h</span>
+                      </span>
+                      <span className="space-x-1">
+                        <span>45</span>
+                        <span className="text-xl">m</span>
+                      </span>
+                    </span>
+                    <span className="text-lg">until the draw</span>
                   </div>
-                  <div className="grid self-start gap-1">
-                    <div className="text-3xl font-bold text-cyan-200 text-ellipsis truncate">
-                      ~${Number(prizeInUSD).toLocaleString()}
+                </div>
+              )
+            }
+
+            {
+              Number(latestRoundInfo.endTime) ? (
+                Number(latestRoundInfo.endTime) > Date.now() ? (
+                  <div className="max-w-2xl shadow min-w-80 rounded-3xl bg-cyan-900/30 backdrop-blur-sm text-cyan-50">
+                    <div className="grid items-center justify-between grid-flow-col py-5 px-7 bg-cyan-950/50 rounded-t-3xl">
+                      <div className="hidden text-base font-black md:block">
+                        Next Draw
+                      </div>
+                      <div className="text-xs">
+                        #{latestRound} | Drawn:{" "}
+                        {latestRoundInfo.endTime > BigInt(0) &&
+                          `${formatTimestamp(Number(latestRoundInfo.endTime))
+                            .formattedDate
+                          } | ${formatTimestamp(Number(latestRoundInfo.endTime))
+                            .formattedTime
+                          }`}
+                      </div>
                     </div>
-                    <div className="text-xs md:self-start">
-                      {roundInfo.amountCollectedInMetis > BigInt(0)
-                        ? Number(
-                          ethers.formatEther(roundInfo.amountCollectedInMetis)
-                        ).toLocaleString()
-                        : 0}{" "}
-                      XTZ
-                    </div>
-                  </div>
-                </div>
 
-                <div className="grid text-sm md:gap-5 md:grid-flow-col items-center">
-                  <div className="py-0.5 font-bold text-base">
-                    Your Tickets:
-                  </div>
-                  <div className="grid gap-2 my-2 justify-center items-center">
-                    <div className="space-x-1">
-                      <span>You have</span>
-                      <span
-                        children={amtTicketInRound}
-                        className="text-cyan-50 w-32 text-sm font-semibold"
-                      />
-                      <span>ticket(s) in this round</span>
-                    </div>
-                    {
-                      Number(amtTicketInRound) > 0 && (
-                        <button
-                          onClick={() => setMyTicketModalOpen(true)}
-                          className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
-                          children={"View your tickets"}
-                        />
-                      )
-                    }
-                  </div>
-                  <button
-                    onClick={() => setBuyModalOpen(true)}
-                    className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100"
-                  >
-                    Buy Tickets
-                  </button>
-                </div>
-              </div>
-
-              <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
-
-              {more && (
-                <div className="grid gap-5 py-5 px-7 bg-cyan-950/50">
-                  <div className="text-xs">
-                    Match the winning number in the same order to share prizes.
-                    Current prizes up for grabs:
-                  </div>
-                  <div className="grid justify-between grid-cols-3 gap-5 md:grid-cols-4">
-                    {latestRoundInfo.rewardsBreakdown.map((val, i) => (
-                      <div key={i} className="grid text-sm justify-items-start">
-                        <div className="text-xs font-bold text-cyan-500">
-                          Match First {i + 1}
+                    <div className="grid gap-5 py-5 text-center px-7">
+                      <div className="grid md:gap-5 md:grid-flow-col justify-items-center md:justify-start">
+                        <div className="self-start py-0.5 font-bold text-base">
+                          Prize Pot:
                         </div>
-                        <div className="space-x-2">
-                          <span className="text-base font-semibold">
-                            {(
-                              (Number(val) / 10000) *
-                              Number(
-                                ethers.formatEther(
-                                  latestRoundInfo.amountCollectedInMetis
-                                )
-                              )
-                            ).toFixed(3)}
-                          </span>
-                          <span className="text-sm">XTZ</span>
-                        </div>
-                        <div className="text-xs opacity-85">
-                          {/* ~${val.usd.toLocaleString()} */}
+                        <div className="grid self-start gap-1">
+                          <div className="text-3xl font-bold text-cyan-200 text-ellipsis truncate">
+                            ~${Number(prizeInUSD).toLocaleString()}
+                          </div>
+                          <div className="text-xs md:self-start">
+                            {roundInfo.amountCollectedInMetis > BigInt(0)
+                              ? Number(
+                                ethers.formatEther(roundInfo.amountCollectedInMetis)
+                              ).toLocaleString()
+                              : 0}{" "}
+                            XTZ
+                          </div>
                         </div>
                       </div>
-                    ))}
+
+                      <div className="grid text-sm md:gap-5 md:grid-flow-col items-center">
+                        <div className="py-0.5 font-bold text-base">
+                          Your Tickets:
+                        </div>
+                        <div className="grid gap-2 my-2 justify-center items-center">
+                          <div className="space-x-1">
+                            <span>You have</span>
+                            <span
+                              children={amtTicketInRound}
+                              className="text-cyan-50 w-32 text-sm font-semibold"
+                            />
+                            <span>ticket(s) in this round</span>
+                          </div>
+                          {
+                            Number(amtTicketInRound) > 0 && (
+                              <button
+                                onClick={() => setMyTicket2ModalOpen(true)}
+                                className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
+                                children={"View your tickets"}
+                              />
+                            )
+                          }
+                        </div>
+
+                        <button
+                          // disabled={!(Number(latestRoundInfo.endTime) > Date.now())}
+                          onClick={() => setBuyModalOpen(true)}
+                          className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Buy Tickets
+                        </button>
+
+                      </div>
+                    </div>
+
+                    <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
+
+                    {more && (
+                      <div className="grid gap-5 py-5 px-7 bg-cyan-950/50">
+                        <div className="text-xs">
+                          Match the winning number in the same order to share prizes.
+                          Current prizes up for grabs:
+                        </div>
+                        <div className="grid justify-between grid-cols-3 gap-5 md:grid-cols-4">
+                          {latestRoundInfo.rewardsBreakdown.map((val, i) => (
+                            <div key={i} className="grid text-sm justify-items-start">
+                              <div className="text-xs font-bold text-cyan-500">
+                                Match First {i + 1}
+                              </div>
+                              <div className="space-x-2">
+                                <span className="text-base font-semibold">
+                                  {(
+                                    (Number(val) / 10000) *
+                                    Number(
+                                      ethers.formatEther(
+                                        latestRoundInfo.amountCollectedInMetis
+                                      )
+                                    )
+                                  ).toFixed(3)}
+                                </span>
+                                <span className="text-sm">XTZ</span>
+                              </div>
+                              <div className="text-xs opacity-85">
+                                {/* ~${val.usd.toLocaleString()} */}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
+
+                    <div className="grid gap-5 py-5 mx-auto text-center px-7 w-fit">
+                      <button
+                        onClick={handleAccordion}
+                        className="grid grid-flow-col px-4 py-2 text-sm font-semibold text-center align-middle duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 group"
+                      >
+                        <span className="">{more ? "Hide" : "Details"}</span>
+                        {more ? (
+                          <FaAngleUp className="my-auto text-xl duration-500 group-hover:py-0.5 justify-self-center" />
+                        ) : (
+                          <FaAngleDown className="my-auto text-xl duration-500 group-hover:py-0.5 justify-self-center" />
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div>
+                    <div className="grid pt-3 grid-flow-col justify-center gap-1.5 text-lg tracking-wide text-center">
+                      The <span className="text-gradient font-bold">EVM.bet</span> Lottery
+                    </div>
 
-              <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
+                    <img src={hourGlass} className="md:w-96 w-32 mx-auto -my-2" />
 
-              <div className="grid gap-5 py-5 mx-auto text-center px-7 w-fit">
-                <button
-                  onClick={handleAccordion}
-                  className="grid grid-flow-col px-4 py-2 text-sm font-semibold text-center align-middle duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 group"
-                >
-                  <span className="">{more ? "Hide" : "Details"}</span>
-                  {more ? (
-                    <FaAngleUp className="my-auto text-xl duration-500 group-hover:py-0.5 justify-self-center" />
-                  ) : (
-                    <FaAngleDown className="my-auto text-xl duration-500 group-hover:py-0.5 justify-self-center" />
-                  )}
-                </button>
-              </div>
-            </div>
+                    <div className="grid gap-5 mx-auto text-4xl font-extrabold tracking-wide text-center pb-5 w-fit">
+                      Tickets on sale soon
+                    </div>
+
+                  </div>
+                )
+              ) : (
+                <img src={evmbetLogo} className="w-8 animate-spin" />
+              )
+            }
           </div>
 
           <div className="grid justify-around gap-8">
@@ -1351,11 +1403,68 @@ const Trophy = () => {
       >
         <div>
           <div className="p-5 rounded-md">
+            <div className="grid gap-2 mb-4">
+              <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Your Tickets"} />
+              <div className="grid grid-flow-col items-center justify-between px-2 font-bold w-full">
+                <div className="w-fit flex gap-1 items-center">
+                  <TfiTicket />
+                  <span>Total Tickets:</span>
+                </div>
+                <div>{amtTicketInRound}</div>
+              </div>
+            </div>
+            <div className="m-auto max-h-[12em] overflow-y-scroll">
+              {ticketNumbersInRound.map((digits, arrayIndex) => (
+                <div
+                  key={arrayIndex}
+                  className="flex space-x-2 my-2 mx-3 items-center justify-center"
+                >
+                  {digits.map((digit, digitIndex) => {
+                    return (
+                      <div
+                        key={digitIndex}
+                        className="w-3/12 border h-fit text-center py-1 rounded-md"
+                        children={digit}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+
+            <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
+
+            <div className="flex flex-col items-center space-y-2">
+              <button
+                onClick={() => {
+                  setBuyModalOpen(true);
+                  setMyTicketModalOpen(false);
+                }}
+                className="bg-cyan-800 hover:bg-cyan-900 duration-500 text-white py-2 px-4 rounded-md w-full"
+              >
+                Buy Ticket
+              </button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        className="m-auto select-none"
+        open={myTicket2ModalOpen}
+        onCancel={() => {
+          setMyTicket2ModalOpen(false);
+        }}
+        footer={null}
+        title={`Round ${latestRound}`}
+      >
+        <div>
+          <div className="p-5 rounded-md">
             <div className="border-b-2 border-dashed py-4 pt-2 mb-2">
               <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Winning Number"} />
               <div className="grid gap-2 grid-flow-col">
                 {
-                  Number(roundInfo.finalNumber)
+                  Number(latestRoundInfo.finalNumber)
                     .toString()
                     .substring(1)
                     .split("")
@@ -1435,7 +1544,7 @@ const Trophy = () => {
                   <TfiTicket />
                   <span>Winning Tickets:</span>
                 </div>
-                <div>{0}</div>
+                <div>{Object.entries(winningTicketsInRound).length}</div>
               </div>
             </div>
             <div className="m-auto max-h-[12em] overflow-y-scroll">
@@ -1463,7 +1572,7 @@ const Trophy = () => {
               <button
                 onClick={() => {
                   setBuyModalOpen(true);
-                  setMyTicketModalOpen(false);
+                  setMyTicket2ModalOpen(false);
                 }}
                 className="bg-cyan-800 hover:bg-cyan-900 duration-500 text-white py-2 px-4 rounded-md w-full"
               >
@@ -1471,23 +1580,27 @@ const Trophy = () => {
               </button>
             </div>
 
-            <Tooltip color={"#155E75"} placement="topLeft" title={
-              <div className="p-5 grid gap-2">
-                <div>Tickets must match the winning number in the exact same order, starting from the first digit.</div>
-                <div>If the winning number is "123456":</div>
-                <div>"120000" matches the first 2 digits.</div>
-                <div>"000006" mathces the last digit, but since the first five digits are wrong, it doesn't win any prizes.</div>
-              </div>
-            }>
-              <div className="w-fit px-5 text-sm mx-auto mt-3 -mb-2 grid grid-flow-col justify-center items-center gap-2 font-bold text-cyan-800 hover:opacity-70 duration-500">
-                <RiErrorWarningLine />
-                <button
-                  className="underline underline-offset-2"
-                >
-                  Why didn't I win?
-                </button>
-              </div>
-            </Tooltip>
+            {
+              Object.entries(winningTicketsInRound).length > 0 && (
+                <Tooltip color={"#155E75"} placement="topLeft" title={
+                  <div className="p-5 grid gap-2">
+                    <div>Tickets must match the winning number in the exact same order, starting from the first digit.</div>
+                    <div>If the winning number is "123456":</div>
+                    <div>"120000" matches the first 2 digits.</div>
+                    <div>"000006" mathces the last digit, but since the first five digits are wrong, it doesn't win any prizes.</div>
+                  </div>
+                }>
+                  <div className="w-fit px-5 text-sm mx-auto mt-3 -mb-2 grid grid-flow-col justify-center items-center gap-2 font-bold text-cyan-800 hover:opacity-70 duration-500">
+                    <RiErrorWarningLine />
+                    <button
+                      className="underline underline-offset-2"
+                    >
+                      Why didn't I win?
+                    </button>
+                  </div>
+                </Tooltip>
+              )
+            }
           </div>
         </div>
       </Modal>
