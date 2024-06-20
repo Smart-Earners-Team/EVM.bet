@@ -168,6 +168,19 @@ const Trophy = () => {
 
   const [ticketNumbersInRound, setTicketNumbersInRound] = useState<string[][]>([]);
 
+  const userRoundInfo = [
+    {
+      number: 1297,
+      date: 'Jun 17, 2024 05:00',
+      tickets: 3,
+    },
+    {
+      number: 1201,
+      date: 'Mar 13, 2024 05:00',
+      tickets: 3,
+    },
+  ];
+
   // useEffect to update digitsArr whenever amtTicket changes
   useEffect(() => {
     const newDigitsArr = Array.from(
@@ -330,7 +343,7 @@ const Trophy = () => {
           .split("")
       );
     });
-    
+
     setamtTicketInRound(String(Number(res.totalTickets)));
 
     const results: { [key: string]: BracketResult[]; } = {};
@@ -956,7 +969,28 @@ const Trophy = () => {
 
                     {
                       isConnected && (
-                        <div></div>
+                        <table className="min-w-full text-cyan-50 text-sm font-semibold mb-5 mt-2">
+                          <thead>
+                            <tr className="text-center justify-items-center text-cyan-400 text-xs">
+                              <th className="py-2 px-4">#</th>
+                              <th className="py-2 px-4">Date</th>
+                              <th className="py-2 px-4">Your Tickets</th>
+                              <th className="py-2 px-4"></th>
+                              <th className="py-2 px-4"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {userRoundInfo.map((round) => (
+                              <tr key={round.number} className="border-b border-gray-700 text-center">
+                                <td className="py-2 px-4">{round.number}</td>
+                                <td className="py-2 px-4">{round.date}</td>
+                                <td className="py-2 px-4">{round.tickets}</td>
+                                <td className="py-2 px-4">{round.tickets}</td>
+                                <td className="py-2 px-4">{round.tickets}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       )
                     }
 

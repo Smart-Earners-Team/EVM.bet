@@ -157,10 +157,40 @@ async function viewRewardsForTicketId({
   // console.log(brackets);
 }
 
+async function viewUserInfoForLotteryId({
+  userAddr,
+  lotteryId,
+  cursor,
+  size,
+  cID,
+  rpcUrl,
+}: {
+  userAddr: string;
+  lotteryId: string;
+  cursor: string;
+  size: string;
+  cID: number;
+  rpcUrl: string;
+}) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const contract = useContractInitializer({
+    rpc: rpcUrl,
+    contractABI: lotteryABI,
+    contractAddress: addresses.lottery[cID],
+  });
+
+  return await contract.viewUserInfoForLotteryId(userAddr, lotteryId, cursor, size);
+
+  // console.log(lotteryId);
+  // console.log(ticketsIdArray);
+  // console.log(brackets);
+}
+
 export {
   buyTickets,
   claimTickets,
   changeRandomizer,
   findMyTickets,
-  viewRewardsForTicketId
+  viewRewardsForTicketId,
+  viewUserInfoForLotteryId
 };
