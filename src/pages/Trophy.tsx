@@ -168,18 +168,11 @@ const Trophy = () => {
 
   const [ticketNumbersInRound, setTicketNumbersInRound] = useState<string[][]>([]);
 
-  const userRoundInfo = [
-    {
-      number: 1297,
-      date: 'Jun 17, 2024 05:00',
-      tickets: 3,
-    },
-    {
-      number: 1201,
-      date: 'Mar 13, 2024 05:00',
-      tickets: 3,
-    },
-  ];
+  const [userRoundInfo, setUserRoundInfo] = useState<{
+    number: number;
+    date: string;
+    tickets: number;
+  }[]>([]);
 
   // useEffect to update digitsArr whenever amtTicket changes
   useEffect(() => {
@@ -320,6 +313,65 @@ const Trophy = () => {
     };
     updateMainButtonText();
   }, [amtTicket]);
+
+  const fetchUserRoundsInfo = async () => {
+    const array: {
+      roundNo: number;
+      ticketIDs: bigint[];
+      ticketNumbers: bigint[];
+      ticketClaimStatus: boolean[];
+      totalTickets: bigint;
+      date: bigint;
+    }[] = [];
+  
+    for (let i = latestRound; i > latestRound - 100; i--) {
+      if (i < 1) {
+        break;
+      }
+      const res = await findMyTickets({
+        userAddr: String(address),
+        lotteryId: String(i),
+        cursor: 0,
+        size: 100,
+        cID: cID,
+        rpcUrl: await findCompatibleRPC(defaultRPCs, cID)
+      });
+  
+      if (res.totalTickets > 0) {
+        const lotInfo = await getLotteryInfo(
+          String(i),
+          cID,
+          await findCompatibleRPC(defaultRPCs, cID)
+        );
+  
+        array.push({
+          ...res,
+          roundNo: i,
+          date: lotInfo.endTime,
+        });
+      }
+    }
+    
+    // console.log(array);
+  
+    const result: {
+      number: number;
+      date: string;
+      tickets: number;
+    }[] = array.map(item => ({
+      number: item.roundNo,
+      date: formatTimestamp(Number(item.date))
+      .formattedDate,
+      tickets: Number(item.totalTickets)
+    }));
+  
+    // console.log(result);
+    setUserRoundInfo(result);
+  };
+
+  useEffect(() => {
+    fetchUserRoundsInfo();
+  }, [latestRound]);
 
   const fetchTicketInRound = async () => {
     const res = await findMyTickets({
@@ -975,8 +1027,6 @@ const Trophy = () => {
                               <th className="py-2 px-4">#</th>
                               <th className="py-2 px-4">Date</th>
                               <th className="py-2 px-4">Your Tickets</th>
-                              <th className="py-2 px-4"></th>
-                              <th className="py-2 px-4"></th>
                             </tr>
                           </thead>
                           <tbody>
@@ -984,8 +1034,6 @@ const Trophy = () => {
                               <tr key={round.number} className="border-b border-gray-700 text-center">
                                 <td className="py-2 px-4">{round.number}</td>
                                 <td className="py-2 px-4">{round.date}</td>
-                                <td className="py-2 px-4">{round.tickets}</td>
-                                <td className="py-2 px-4">{round.tickets}</td>
                                 <td className="py-2 px-4">{round.tickets}</td>
                               </tr>
                             ))}
