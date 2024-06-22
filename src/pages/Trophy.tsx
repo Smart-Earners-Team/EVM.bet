@@ -30,6 +30,7 @@ import { shortenAddress } from "../hooks/shortenAddress";
 import { TfiTicket } from "react-icons/tfi";
 import { RiErrorWarningLine } from "react-icons/ri";
 import hourGlass from "../assets/hourglassNewColored.gif";
+import { PiCaretRightBold } from "react-icons/pi";
 
 const evmbetLogo = "/logo.png";
 
@@ -323,7 +324,7 @@ const Trophy = () => {
       totalTickets: bigint;
       date: bigint;
     }[] = [];
-  
+
     for (let i = latestRound; i > latestRound - 100; i--) {
       if (i < 1) {
         break;
@@ -336,14 +337,14 @@ const Trophy = () => {
         cID: cID,
         rpcUrl: await findCompatibleRPC(defaultRPCs, cID)
       });
-  
+
       if (res.totalTickets > 0) {
         const lotInfo = await getLotteryInfo(
           String(i),
           cID,
           await findCompatibleRPC(defaultRPCs, cID)
         );
-  
+
         array.push({
           ...res,
           roundNo: i,
@@ -351,9 +352,9 @@ const Trophy = () => {
         });
       }
     }
-    
+
     // console.log(array);
-  
+
     const result: {
       number: number;
       date: string;
@@ -361,10 +362,10 @@ const Trophy = () => {
     }[] = array.map(item => ({
       number: item.roundNo,
       date: formatTimestamp(Number(item.date))
-      .formattedDate,
+        .formattedDate,
       tickets: Number(item.totalTickets)
     }));
-  
+
     // console.log(result);
     setUserRoundInfo(result);
   };
@@ -947,7 +948,7 @@ const Trophy = () => {
                             prizes. Current prizes up for grabs:
                           </div>
                           <div className="grid justify-between grid-cols-3 gap-5 md:grid-cols-4">
-                            {roundInfo.rewardsBreakdown.map((val, i) => (
+                            {roundInfo?.rewardsBreakdown.map((val, i) => (
                               <div
                                 key={i}
                                 className="grid text-sm justify-items-start"
@@ -1023,10 +1024,11 @@ const Trophy = () => {
                       isConnected && (
                         <table className="min-w-full text-cyan-50 text-sm font-semibold mb-5 mt-2">
                           <thead>
-                            <tr className="text-center justify-items-center text-cyan-400 text-xs">
+                            <tr className="uppercase tracking-wider text-center justify-items-center text-cyan-400 text-[11px]">
                               <th className="py-2 px-4">#</th>
                               <th className="py-2 px-4">Date</th>
                               <th className="py-2 px-4">Your Tickets</th>
+                              <th className="py-2 px-4"></th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1034,7 +1036,14 @@ const Trophy = () => {
                               <tr key={round.number} className="border-b border-gray-700 text-center">
                                 <td className="py-2 px-4">{round.number}</td>
                                 <td className="py-2 px-4">{round.date}</td>
-                                <td className="py-2 px-4">{round.tickets}</td>
+                                <td className="py-2 px-4 grid grid-flow-col justify-end items-center text-cyan-500">
+                                  <span className="text-cyan-50">{round.tickets}</span>
+                                  <span className="scale-50">🔘</span>
+                                  <PiCaretRightBold title="View Round Info" onClick={() => {
+                                    setRoundNo(round.number);
+                                    setRoundHistory("All");
+                                  }} className="scale-125 hover:scale-150 duration-500 cursor-pointer" />
+                                </td>
                               </tr>
                             ))}
                           </tbody>
