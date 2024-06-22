@@ -948,7 +948,7 @@ const Trophy = () => {
                             prizes. Current prizes up for grabs:
                           </div>
                           <div className="grid justify-between grid-cols-3 gap-5 md:grid-cols-4">
-                            {roundInfo?.rewardsBreakdown.map((val, i) => (
+                            {roundInfo?.rewardsBreakdown?.map((val, i) => (
                               <div
                                 key={i}
                                 className="grid text-sm justify-items-start"
