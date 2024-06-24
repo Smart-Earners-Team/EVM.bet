@@ -28,7 +28,7 @@ import { useEthersSigner } from "../hooks/wagmiSigner";
 import { TiLinkOutline, TiTick, TiWarning } from "react-icons/ti";
 import { shortenAddress } from "../hooks/shortenAddress";
 import { TfiTicket } from "react-icons/tfi";
-import { RiErrorWarningLine } from "react-icons/ri";
+import { RiCheckFill, RiErrorWarningLine } from "react-icons/ri";
 import hourGlass from "../assets/hourglassNewColored.gif";
 import { PiCaretRightBold } from "react-icons/pi";
 
@@ -174,7 +174,7 @@ const Trophy = () => {
 
   const [ticketNumbersInRound, setTicketNumbersInRound] = useState<string[][]>([]);
 
-  // const [ticketNumbersInLatestRound, setTicketNumbersInLatestRound] = useState<string[][]>([]);
+  const [ticketNumbersInLatestRound, setTicketNumbersInLatestRound] = useState<string[][]>([]);
 
   const [userRoundInfo, setUserRoundInfo] = useState<{
     number: number;
@@ -315,7 +315,7 @@ const Trophy = () => {
   };
 
   const handleClaimTickets = async () => {
-    // console.log("claiming");
+    console.log("claiming");
     setisBuyLoading(true);
 
     try {
@@ -416,7 +416,8 @@ const Trophy = () => {
       cID: cID,
       rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
     });
-    // console.log(res.totalTickets)
+
+    setamtTicketInRound(String(Number(res.totalTickets)));
 
     const results: { [key: string]: BracketResult[]; } = {};
 
@@ -443,8 +444,11 @@ const Trophy = () => {
       }
     }
 
+    setWinningTicketsInRound(results);
+
     // console.log(results);
     // console.log('Total number of results:', Object.keys(results).length);
+
     setTicketNumbersInRound(() => {
       // console.log(arr);
       return res.ticketNumbers.map(val =>
@@ -456,8 +460,6 @@ const Trophy = () => {
           .split("")
       );
     });
-    setamtTicketInRound(String(Number(res.totalTickets)));
-    setWinningTicketsInRound(results);
   };
 
   const fetchTicketInLatestRound = async () => {
@@ -470,6 +472,8 @@ const Trophy = () => {
       rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
     });
     // console.log(res.totalTickets)
+
+    setamtTicketInLatestRound(String(Number(res.totalTickets)));
 
     // const results: { [key: string]: BracketResult[]; } = {};
 
@@ -496,21 +500,22 @@ const Trophy = () => {
     //   }
     // }
 
+    // setWinningTicketsInLatestRound(results);
+
     // console.log(results);
     // console.log('Total number of results:', Object.keys(results).length);
-    // setTicketNumbersInLatestRound(() => {
-    //   // console.log(arr);
-    //   return res.ticketNumbers.map(val =>
-    //     val.toString()
-    //       .substring(1)
-    //       .split("")
-    //       .reverse()
-    //       .join("")
-    //       .split("")
-    //   );
-    // });
-    setamtTicketInLatestRound(String(Number(res.totalTickets)));
-    // setWinningTicketsInLatestRound(results);
+
+    setTicketNumbersInLatestRound(() => {
+      // console.log(arr);
+      return res.ticketNumbers.map(val =>
+        val.toString()
+          .substring(1)
+          .split("")
+          .reverse()
+          .join("")
+          .split("")
+      );
+    });
   };
 
   const fetchBulkTicketDiscount = async () => {
@@ -555,7 +560,7 @@ const Trophy = () => {
 
   useEffect(() => {
     fetchTicketInLatestRound();
-  }, [latestRound, address, cID]);
+  }, [roundNo, latestRound, address, cID]);
 
   useEffect(() => {
     fetchBulkTicketDiscount();
@@ -934,71 +939,110 @@ const Trophy = () => {
                         </div>
                         <div className="relative items-center grid grid-flow-col gap-2 select-none">
                           {
-                            loadingRound ? <img src={evmbetLogo} className='w-8 animate-spin' /> :
-                              /* Number(1533774) */
-                              Number(roundInfo.finalNumber)
-                                .toString()
-                                .substring(1)
-                                .split("")
-                                .reverse()
-                                .join("")
-                                .split("")
-                                .map((val, i) => (
-                                  <div key={i} className="relative h-fit w-fit">
-                                    <svg
-                                      viewBox="0 0 32 32"
-                                      color="text"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="w-12 shadow-xl md:w-16"
-                                    >
-                                      <circle
-                                        cx="16"
-                                        cy="16"
-                                        r="16"
-                                        fill={generateColorHash(i ** 2 + 1)}
-                                      />
-                                      <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M24.343 3.132c4.576 5.74 4.208 14.125-1.106 19.439-5.709 5.709-14.966 5.709-20.675 0q-.42-.42-.798-.864C4.028 27.349 9.55 31.333 16 31.333c8.468 0 15.333-6.865 15.333-15.334 0-5.391-2.783-10.133-6.99-12.867"
-                                        opacity=".1"
-                                        style={{
-                                          mixBlendMode: "multiply",
-                                        }}
-                                      />
-                                      <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M25.771 4.183c4.86 6.029 4.49 14.878-1.11 20.478s-14.448 5.97-20.477 1.111A15.3 15.3 0 0 0 16 31.332c8.468 0 15.333-6.864 15.333-15.332a15.3 15.3 0 0 0-5.562-11.817"
-                                        opacity=".1"
-                                        style={{
-                                          mixBlendMode: "multiply",
-                                        }}
-                                      />
-                                      <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M3.49 24.868C.15 18.765.975 11.064 6.02 6.019 11.063.975 18.765.151 24.868 3.49A15.26 15.26 0 0 0 16 .667C7.532.667.667 7.532.667 16c0 3.304 1.045 6.364 2.823 8.868"
-                                        fill="#fff"
-                                        style={{
-                                          mixBlendMode: "soft-light",
-                                        }}
-                                      />
-                                      <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M2.1 9.514a15.4 15.4 0 0 1 8.392-7.83q.081.072.158.15c1.834 1.833.262 3.91-1.989 6.16-2.25 2.251-4.327 3.823-6.16 1.99a4 4 0 0 1-.4-.47"
-                                        fill="#fff"
-                                        style={{
-                                          mixBlendMode: "soft-light",
-                                        }}
-                                      />
-                                    </svg>
-                                    <div className="absolute text-3xl font-bold rotate-6 top-1.5 md:top-3 text-cyan-50 left-1/3">
-                                      {val}
+                            loadingRound ? <img src={evmbetLogo} className='w-8 animate-spin m-auto' /> :
+                              <div>
+                                <div className="relative items-center grid grid-flow-col gap-2 select-none">
+                                  {
+                                    /* Number(1533774) */
+                                    Number(roundInfo.finalNumber)
+                                      .toString()
+                                      .substring(1)
+                                      .split("")
+                                      .reverse()
+                                      .join("")
+                                      .split("")
+                                      .map((val, i) => (
+                                        <div key={i} className="relative h-fit w-fit">
+                                          <svg
+                                            viewBox="0 0 32 32"
+                                            color="text"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="w-12 shadow-xl md:w-16"
+                                          >
+                                            <circle
+                                              cx="16"
+                                              cy="16"
+                                              r="16"
+                                              fill={generateColorHash(i ** 2 + 1)}
+                                            />
+                                            <path
+                                              fillRule="evenodd"
+                                              clipRule="evenodd"
+                                              d="M24.343 3.132c4.576 5.74 4.208 14.125-1.106 19.439-5.709 5.709-14.966 5.709-20.675 0q-.42-.42-.798-.864C4.028 27.349 9.55 31.333 16 31.333c8.468 0 15.333-6.865 15.333-15.334 0-5.391-2.783-10.133-6.99-12.867"
+                                              opacity=".1"
+                                              style={{
+                                                mixBlendMode: "multiply",
+                                              }}
+                                            />
+                                            <path
+                                              fillRule="evenodd"
+                                              clipRule="evenodd"
+                                              d="M25.771 4.183c4.86 6.029 4.49 14.878-1.11 20.478s-14.448 5.97-20.477 1.111A15.3 15.3 0 0 0 16 31.332c8.468 0 15.333-6.864 15.333-15.332a15.3 15.3 0 0 0-5.562-11.817"
+                                              opacity=".1"
+                                              style={{
+                                                mixBlendMode: "multiply",
+                                              }}
+                                            />
+                                            <path
+                                              fillRule="evenodd"
+                                              clipRule="evenodd"
+                                              d="M3.49 24.868C.15 18.765.975 11.064 6.02 6.019 11.063.975 18.765.151 24.868 3.49A15.26 15.26 0 0 0 16 .667C7.532.667.667 7.532.667 16c0 3.304 1.045 6.364 2.823 8.868"
+                                              fill="#fff"
+                                              style={{
+                                                mixBlendMode: "soft-light",
+                                              }}
+                                            />
+                                            <path
+                                              fillRule="evenodd"
+                                              clipRule="evenodd"
+                                              d="M2.1 9.514a15.4 15.4 0 0 1 8.392-7.83q.081.072.158.15c1.834 1.833.262 3.91-1.989 6.16-2.25 2.251-4.327 3.823-6.16 1.99a4 4 0 0 1-.4-.47"
+                                              fill="#fff"
+                                              style={{
+                                                mixBlendMode: "soft-light",
+                                              }}
+                                            />
+                                          </svg>
+                                          <div className="absolute text-3xl font-bold rotate-6 top-1.5 md:top-3 text-cyan-50 left-1/3">
+                                            {val}
+                                          </div>
+                                        </div>
+                                      ))
+                                  }
+                                </div>
+                                {
+                                  Number(amtTicketInRound) > 0 && (
+                                    <div className="grid text-sm md:gap-5 md:grid-flow-col items-center px-5">
+                                      {/* <div className="py-0.5 font-bold text-base">
+                                        Your Tickets:
+                                      </div> */}
+                                      <div className="grid gap-2 my-2 justify-center items-center">
+                                        <div className="space-x-1">
+                                          <span>You have</span>
+                                          <span
+                                            children={amtTicketInRound}
+                                            className="text-cyan-50 w-32 text-sm font-semibold"
+                                          />
+                                          <span>ticket(s) in this round</span>
+                                        </div>
+
+                                        <button
+                                          onClick={() => setMyTicket2ModalOpen(true)}
+                                          className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
+                                          children={"View your tickets"}
+                                        />
+                                      </div>
+
+                                      {/* <button
+                                        // disabled={!(Number(latestRoundInfo.endTime) > Date.now())}
+                                        onClick={() => setBuyModalOpen(true)}
+                                        className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                      >
+                                        Buy Tickets
+                                      </button> */}
                                     </div>
-                                  </div>
-                                ))
+                                  )
+                                }
+                              </div>
                           }
                           {roundNo === lastRound && (
                             <div className="absolute px-2 py-1 text-xs font-semibold tracking-wide uppercase rotate-[30deg] -right-6 -top-5 text-cyan-900/80 w-fit bg-cyan-50 h-fit rounded-3xl">
@@ -1010,43 +1054,9 @@ const Trophy = () => {
                     </div>
 
                     {
-                      Number(amtTicketInRound) > 0 && (
-                        <div className="grid text-sm md:gap-5 md:grid-flow-col items-center px-5">
-                          {/* <div className="py-0.5 font-bold text-base">
-                            Your Tickets:
-                          </div> */}
-                          <div className="grid gap-2 my-2 justify-center items-center">
-                            <div className="space-x-1">
-                              <span>You have</span>
-                              <span
-                                children={amtTicketInRound}
-                                className="text-cyan-50 w-32 text-sm font-semibold"
-                              />
-                              <span>ticket(s) in this round</span>
-                            </div>
-
-                            <button
-                              onClick={() => setMyTicket2ModalOpen(true)}
-                              className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
-                              children={"View your tickets"}
-                            />
-                          </div>
-
-                          {/* <button
-                          // disabled={!(Number(latestRoundInfo.endTime) > Date.now())}
-                          onClick={() => setBuyModalOpen(true)}
-                          className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Buy Tickets
-                        </button> */}
-                        </div>
-                      )
-                    }
-
-                    {
                       isConnected && (
                         <div className="justify-center grid mb-4">
-                          <button disabled={Object.entries(winningTicketsInRound).length > 0} className="px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleClaimTickets}>Claim Ticket{Object.entries(winningTicketsInRound).length !== 1 && 's'}</button>
+                          <button disabled={Object.entries(winningTicketsInRound).length < 1} className="px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleClaimTickets}>Claim Ticket{Object.entries(winningTicketsInRound).length !== 1 && 's'}</button>
                         </div>
                       )
                     }
@@ -1613,8 +1623,6 @@ const Trophy = () => {
         )}
       </Modal>
 
-
-
       <Modal
         className="m-auto select-none"
         open={myTicketModalOpen}
@@ -1623,6 +1631,64 @@ const Trophy = () => {
         }}
         footer={null}
         title={`Round ${latestRound}`}
+      >
+        <div>
+          <div className="p-5 rounded-md">
+            <div className="grid gap-2 mb-4">
+              <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Your Tickets"} />
+              <div className="grid grid-flow-col items-center justify-between px-2 font-bold w-full">
+                <div className="w-fit flex gap-1 items-center">
+                  <TfiTicket />
+                  <span>Total Tickets:</span>
+                </div>
+                <div>{amtTicketInLatestRound}</div>
+              </div>
+            </div>
+            <div className="m-auto max-h-[12em] overflow-y-scroll">
+              {Object.entries(ticketNumbersInLatestRound).length > 0 ? ticketNumbersInLatestRound.map((digits, arrayIndex) => (
+                <div
+                  key={arrayIndex}
+                  className="flex space-x-2 my-2 mx-3 items-center justify-center"
+                >
+                  {digits.map((digit, digitIndex) => {
+                    return (
+                      <div
+                        key={digitIndex}
+                        className="w-3/12 border h-fit text-center py-1 rounded-md"
+                        children={digit}
+                      />
+                    );
+                  })}
+                </div>
+              )) : <img src={evmbetLogo} className='w-8 animate-spin m-auto' />
+              }
+            </div>
+
+            <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
+
+            <div className="flex flex-col items-center space-y-2">
+              <button
+                onClick={() => {
+                  setBuyModalOpen(true);
+                  setMyTicketModalOpen(false);
+                }}
+                className="bg-cyan-800 hover:bg-cyan-900 duration-500 text-white py-2 px-4 rounded-md w-full"
+              >
+                Buy Ticket
+              </button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        className="m-auto select-none"
+        open={myTicket2ModalOpen}
+        onCancel={() => {
+          setMyTicket2ModalOpen(false);
+        }}
+        footer={null}
+        title={`Round ${roundNo}`}
       >
         <div>
           <div className="p-5 rounded-md">
@@ -1734,20 +1800,8 @@ const Trophy = () => {
 
             <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
 
-            <div className="flex flex-col items-center space-y-2">
-              <button
-                onClick={() => {
-                  setBuyModalOpen(true);
-                  setMyTicketModalOpen(false);
-                }}
-                className="bg-cyan-800 hover:bg-cyan-900 duration-500 text-white py-2 px-4 rounded-md w-full"
-              >
-                Buy Ticket
-              </button>
-            </div>
-
             {
-              Object.entries(winningTicketsInRound).length > 0 && (
+              Object.entries(winningTicketsInRound).length < 1 ? (
                 <Tooltip color={"#155E75"} placement="topLeft" title={
                   <div className="p-5 grid gap-2">
                     <div>Tickets must match the winning number in the exact same order, starting from the first digit.</div>
@@ -1765,65 +1819,17 @@ const Trophy = () => {
                     </button>
                   </div>
                 </Tooltip>
+              ) : (
+                <div className="w-fit px-5 text-sm mx-auto mt-3 -mb-2 grid grid-flow-col justify-center items-center gap-2 font-bold text-cyan-800 hover:opacity-70 duration-500">
+                  <RiCheckFill />
+                  <span
+                    className=""
+                  >
+                    Congratulations!
+                  </span>
+                </div>
               )
             }
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        className="m-auto select-none"
-        open={myTicket2ModalOpen}
-        onCancel={() => {
-          setMyTicket2ModalOpen(false);
-        }}
-        footer={null}
-        title={`Round ${roundNo}`}
-      >
-        <div>
-          <div className="p-5 rounded-md">
-            <div className="grid gap-2 mb-4">
-              <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Your Tickets"} />
-              <div className="grid grid-flow-col items-center justify-between px-2 font-bold w-full">
-                <div className="w-fit flex gap-1 items-center">
-                  <TfiTicket />
-                  <span>Total Tickets:</span>
-                </div>
-                <div>{amtTicketInRound}</div>
-              </div>
-            </div>
-            <div className="m-auto max-h-[12em] overflow-y-scroll">
-              {ticketNumbersInRound.map((digits, arrayIndex) => (
-                <div
-                  key={arrayIndex}
-                  className="flex space-x-2 my-2 mx-3 items-center justify-center"
-                >
-                  {digits.map((digit, digitIndex) => {
-                    return (
-                      <div
-                        key={digitIndex}
-                        className="w-3/12 border h-fit text-center py-1 rounded-md"
-                        children={digit}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-
-            <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
-
-            <div className="flex flex-col items-center space-y-2">
-              <button
-                onClick={() => {
-                  setBuyModalOpen(true);
-                  setMyTicket2ModalOpen(false);
-                }}
-                className="bg-cyan-800 hover:bg-cyan-900 duration-500 text-white py-2 px-4 rounded-md w-full"
-              >
-                Buy Ticket
-              </button>
-            </div>
           </div>
         </div>
       </Modal>
