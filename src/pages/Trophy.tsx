@@ -918,7 +918,7 @@ const Trophy = () => {
                           <LuArrowRight />
                         </button>
                         <button
-                          onClick={() => setRoundNo(1000)}
+                          onClick={() => setRoundNo(latestRound)}
                           className="text-xl disabled:cursor-not-allowed disabled:opacity-50"
                           disabled
                         >
