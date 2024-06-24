@@ -101,12 +101,17 @@ const Trophy = () => {
   const [roundHistory, setRoundHistory] = useState<string>("All");
   const [prizeInXTZ, setprizeInXTZ] = useState<string>("0");
   const [prizeInUSD, setPrizeInUSD] = useState<string>("0");
+  const [prizeInUSD2, setPrizeInUSD2] = useState<string>("0");
   const [moreR, setMoreR] = useState<boolean>(false);
   const [amtTicket, setamtTicket] = useState<string>("0");
   const [amtTicketInRound, setamtTicketInRound] = useState<string>("0");
+  const [amtTicketInLatestRound, setamtTicketInLatestRound] = useState<string>("0");
   const [winningTicketsInRound, setWinningTicketsInRound] = useState<{
     [key: string]: BracketResult[];
   }>({});
+  // const [winningTicketsInLatestRound, setWinningTicketsInLatestRound] = useState<{
+  //   [key: string]: BracketResult[];
+  // }>({});
   const [buyModalOpen, setBuyModalOpen] = useState<boolean>(false);
   const [myTicketModalOpen, setMyTicketModalOpen] = useState<boolean>(false);
   const [myTicket2ModalOpen, setMyTicket2ModalOpen] = useState<boolean>(false);
@@ -168,6 +173,8 @@ const Trophy = () => {
   );
 
   const [ticketNumbersInRound, setTicketNumbersInRound] = useState<string[][]>([]);
+
+  // const [ticketNumbersInLatestRound, setTicketNumbersInLatestRound] = useState<string[][]>([]);
 
   const [userRoundInfo, setUserRoundInfo] = useState<{
     number: number;
@@ -261,6 +268,9 @@ const Trophy = () => {
     setPrizeInUSD(String(await getCurrentPrizeInUSD(String(roundNo), cID)));
     // console.log(await getCurrentPrizeInUSD(String(roundNo), cID));
 
+    setPrizeInUSD2(String(await getCurrentPrizeInUSD(String(latestRound), cID)));
+    // console.log(await getCurrentPrizeInUSD2(String(latestRound), cID));
+
     setloadingRound(false);
 
     // console.log(roundInfo);
@@ -297,6 +307,29 @@ const Trophy = () => {
       // console.log(res);
 
       setReceipt(res);
+      setisBuyLoading(false);
+    } catch (error) {
+      console.error(error);
+      setisBuyLoading(false);
+    }
+  };
+
+  const handleClaimTickets = async () => {
+    // console.log("claiming");
+    setisBuyLoading(true);
+
+    try {
+      // const res = await claimTickets(
+      //   String(latestRound),
+      //   ticketNumbers,
+      //   bulkTicketDiscount,
+      //   cID,
+      //   signer
+      // );
+
+      // console.log(res);
+
+      // setReceipt(res);
       setisBuyLoading(false);
     } catch (error) {
       console.error(error);
@@ -377,27 +410,13 @@ const Trophy = () => {
   const fetchTicketInRound = async () => {
     const res = await findMyTickets({
       userAddr: String(address),
-      lotteryId: String(latestRound),
+      lotteryId: String(roundNo),
       cursor: 0,
       size: 100,
       cID: cID,
       rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
     });
     // console.log(res.totalTickets)
-
-    setTicketNumbersInRound(() => {
-      // console.log(arr);
-      return res.ticketNumbers.map(val =>
-        val.toString()
-          .substring(1)
-          .split("")
-          .reverse()
-          .join("")
-          .split("")
-      );
-    });
-
-    setamtTicketInRound(String(Number(res.totalTickets)));
 
     const results: { [key: string]: BracketResult[]; } = {};
 
@@ -410,7 +429,7 @@ const Trophy = () => {
           ticketId: BigInt(ticketId),
           cID: cID,
           rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
-          lotteryId: String(latestRound),
+          lotteryId: String(roundNo),
           bracket: BigInt(j)
         });
 
@@ -426,7 +445,72 @@ const Trophy = () => {
 
     // console.log(results);
     // console.log('Total number of results:', Object.keys(results).length);
+    setTicketNumbersInRound(() => {
+      // console.log(arr);
+      return res.ticketNumbers.map(val =>
+        val.toString()
+          .substring(1)
+          .split("")
+          .reverse()
+          .join("")
+          .split("")
+      );
+    });
+    setamtTicketInRound(String(Number(res.totalTickets)));
     setWinningTicketsInRound(results);
+  };
+
+  const fetchTicketInLatestRound = async () => {
+    const res = await findMyTickets({
+      userAddr: String(address),
+      lotteryId: String(latestRound),
+      cursor: 0,
+      size: 100,
+      cID: cID,
+      rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
+    });
+    // console.log(res.totalTickets)
+
+    // const results: { [key: string]: BracketResult[]; } = {};
+
+    // for (let i = 0; i < res.ticketIDs.length; i++) {
+    //   const ticketId = res.ticketIDs[i].toString();
+    //   const bracketResults: BracketResult[] = [];
+
+    //   for (let j = 0; j < 7; j++) {
+    //     const result: bigint = await viewRewardsForTicketId({
+    //       ticketId: BigInt(ticketId),
+    //       cID: cID,
+    //       rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
+    //       lotteryId: String(latestRound),
+    //       bracket: BigInt(j)
+    //     });
+
+    //     if (result > BigInt(0)) {
+    //       bracketResults.push({ bracket: j, result });
+    //     }
+    //   }
+
+    //   if (bracketResults.length > 0) {
+    //     results[ticketId] = bracketResults;
+    //   }
+    // }
+
+    // console.log(results);
+    // console.log('Total number of results:', Object.keys(results).length);
+    // setTicketNumbersInLatestRound(() => {
+    //   // console.log(arr);
+    //   return res.ticketNumbers.map(val =>
+    //     val.toString()
+    //       .substring(1)
+    //       .split("")
+    //       .reverse()
+    //       .join("")
+    //       .split("")
+    //   );
+    // });
+    setamtTicketInLatestRound(String(Number(res.totalTickets)));
+    // setWinningTicketsInLatestRound(results);
   };
 
   const fetchBulkTicketDiscount = async () => {
@@ -467,7 +551,11 @@ const Trophy = () => {
 
   useEffect(() => {
     fetchTicketInRound();
-  }, [address, cID, latestRound]);
+  }, [roundNo, address, cID]);
+
+  useEffect(() => {
+    fetchTicketInLatestRound();
+  }, [latestRound, address, cID]);
 
   useEffect(() => {
     fetchBulkTicketDiscount();
@@ -615,12 +703,12 @@ const Trophy = () => {
                         </div>
                         <div className="grid self-start gap-1">
                           <div className="text-3xl font-bold text-cyan-200 text-ellipsis truncate">
-                            ~${Number(prizeInUSD).toLocaleString()}
+                            ~${Number(prizeInUSD2).toLocaleString()}
                           </div>
                           <div className="text-xs md:self-start">
-                            {roundInfo.amountCollectedInMetis > BigInt(0)
+                            {latestRoundInfo.amountCollectedInMetis > BigInt(0)
                               ? Number(
-                                ethers.formatEther(roundInfo.amountCollectedInMetis)
+                                ethers.formatEther(latestRoundInfo.amountCollectedInMetis)
                               ).toLocaleString()
                               : 0}{" "}
                             XTZ
@@ -636,15 +724,15 @@ const Trophy = () => {
                           <div className="space-x-1">
                             <span>You have</span>
                             <span
-                              children={amtTicketInRound}
+                              children={amtTicketInLatestRound}
                               className="text-cyan-50 w-32 text-sm font-semibold"
                             />
                             <span>ticket(s) in this round</span>
                           </div>
                           {
-                            Number(amtTicketInRound) > 0 && (
+                            Number(amtTicketInLatestRound) > 0 && (
                               <button
-                                onClick={() => setMyTicket2ModalOpen(true)}
+                                onClick={() => setMyTicketModalOpen(true)}
                                 className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
                                 children={"View your tickets"}
                               />
@@ -921,6 +1009,48 @@ const Trophy = () => {
                       </div>
                     </div>
 
+                    {
+                      Number(amtTicketInRound) > 0 && (
+                        <div className="grid text-sm md:gap-5 md:grid-flow-col items-center px-5">
+                          {/* <div className="py-0.5 font-bold text-base">
+                            Your Tickets:
+                          </div> */}
+                          <div className="grid gap-2 my-2 justify-center items-center">
+                            <div className="space-x-1">
+                              <span>You have</span>
+                              <span
+                                children={amtTicketInRound}
+                                className="text-cyan-50 w-32 text-sm font-semibold"
+                              />
+                              <span>ticket(s) in this round</span>
+                            </div>
+
+                            <button
+                              onClick={() => setMyTicket2ModalOpen(true)}
+                              className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
+                              children={"View your tickets"}
+                            />
+                          </div>
+
+                          {/* <button
+                          // disabled={!(Number(latestRoundInfo.endTime) > Date.now())}
+                          onClick={() => setBuyModalOpen(true)}
+                          className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Buy Tickets
+                        </button> */}
+                        </div>
+                      )
+                    }
+
+                    {
+                      isConnected && (
+                        <div className="justify-center grid mb-4">
+                          <button disabled={Object.entries(winningTicketsInRound).length > 0} className="px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleClaimTickets}>Claim Ticket{Object.entries(winningTicketsInRound).length !== 1 && 's'}</button>
+                        </div>
+                      )
+                    }
+
                     <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
 
                     {moreR && (
@@ -938,8 +1068,8 @@ const Trophy = () => {
                             </div>
                           </div>
                           {/* <div className="text-xs font-bold text-cyan-50">
-                                                                Total Players this round: {312}
-                                                            </div> */}
+                            Total Players this round: {312}
+                          </div> */}
                         </div>
 
                         <div className="grid gap-5">
@@ -1483,68 +1613,13 @@ const Trophy = () => {
         )}
       </Modal>
 
+
+
       <Modal
         className="m-auto select-none"
         open={myTicketModalOpen}
         onCancel={() => {
           setMyTicketModalOpen(false);
-        }}
-        footer={null}
-        title={`Round ${roundNo}`}
-      >
-        <div>
-          <div className="p-5 rounded-md">
-            <div className="grid gap-2 mb-4">
-              <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Your Tickets"} />
-              <div className="grid grid-flow-col items-center justify-between px-2 font-bold w-full">
-                <div className="w-fit flex gap-1 items-center">
-                  <TfiTicket />
-                  <span>Total Tickets:</span>
-                </div>
-                <div>{amtTicketInRound}</div>
-              </div>
-            </div>
-            <div className="m-auto max-h-[12em] overflow-y-scroll">
-              {ticketNumbersInRound.map((digits, arrayIndex) => (
-                <div
-                  key={arrayIndex}
-                  className="flex space-x-2 my-2 mx-3 items-center justify-center"
-                >
-                  {digits.map((digit, digitIndex) => {
-                    return (
-                      <div
-                        key={digitIndex}
-                        className="w-3/12 border h-fit text-center py-1 rounded-md"
-                        children={digit}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-
-            <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
-
-            <div className="flex flex-col items-center space-y-2">
-              <button
-                onClick={() => {
-                  setBuyModalOpen(true);
-                  setMyTicketModalOpen(false);
-                }}
-                className="bg-cyan-800 hover:bg-cyan-900 duration-500 text-white py-2 px-4 rounded-md w-full"
-              >
-                Buy Ticket
-              </button>
-            </div>
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        className="m-auto select-none"
-        open={myTicket2ModalOpen}
-        onCancel={() => {
-          setMyTicket2ModalOpen(false);
         }}
         footer={null}
         title={`Round ${latestRound}`}
@@ -1663,7 +1738,7 @@ const Trophy = () => {
               <button
                 onClick={() => {
                   setBuyModalOpen(true);
-                  setMyTicket2ModalOpen(false);
+                  setMyTicketModalOpen(false);
                 }}
                 className="bg-cyan-800 hover:bg-cyan-900 duration-500 text-white py-2 px-4 rounded-md w-full"
               >
@@ -1692,6 +1767,63 @@ const Trophy = () => {
                 </Tooltip>
               )
             }
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        className="m-auto select-none"
+        open={myTicket2ModalOpen}
+        onCancel={() => {
+          setMyTicket2ModalOpen(false);
+        }}
+        footer={null}
+        title={`Round ${roundNo}`}
+      >
+        <div>
+          <div className="p-5 rounded-md">
+            <div className="grid gap-2 mb-4">
+              <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Your Tickets"} />
+              <div className="grid grid-flow-col items-center justify-between px-2 font-bold w-full">
+                <div className="w-fit flex gap-1 items-center">
+                  <TfiTicket />
+                  <span>Total Tickets:</span>
+                </div>
+                <div>{amtTicketInRound}</div>
+              </div>
+            </div>
+            <div className="m-auto max-h-[12em] overflow-y-scroll">
+              {ticketNumbersInRound.map((digits, arrayIndex) => (
+                <div
+                  key={arrayIndex}
+                  className="flex space-x-2 my-2 mx-3 items-center justify-center"
+                >
+                  {digits.map((digit, digitIndex) => {
+                    return (
+                      <div
+                        key={digitIndex}
+                        className="w-3/12 border h-fit text-center py-1 rounded-md"
+                        children={digit}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+
+            <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
+
+            <div className="flex flex-col items-center space-y-2">
+              <button
+                onClick={() => {
+                  setBuyModalOpen(true);
+                  setMyTicket2ModalOpen(false);
+                }}
+                className="bg-cyan-800 hover:bg-cyan-900 duration-500 text-white py-2 px-4 rounded-md w-full"
+              >
+                Buy Ticket
+              </button>
+            </div>
           </div>
         </div>
       </Modal>
