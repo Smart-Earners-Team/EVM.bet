@@ -16,6 +16,14 @@ function flattenArray(arr: number[][]): number[] {
   });
 }
 
+export function flattenArrayToString(arr: number[][]): string[] {
+  return arr.map(subArr => {
+
+    const concatenated = subArr.join('');
+    return concatenated;
+  });
+}
+
 const buyTickets = async (lotteryId: string, ticketNumbers: number[][], amount: string, cID: number, signer: ethers.JsonRpcSigner) => {
   // console.log(lotteryId)
   // console.log(ticketNumbers)
@@ -54,26 +62,39 @@ async function claimTickets({
   ticketsIdArray,
   brackets,
   cID,
-  rpcUrl,
+  signer
 }: {
   lotteryId: string;
   ticketsIdArray: string[];
   brackets: number[];
   cID: number;
-  rpcUrl: string;
+  signer: ethers.JsonRpcSigner
 }) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const contract = useContractInitializer({
-    rpc: rpcUrl,
-    contractABI: lotteryABI,
-    contractAddress: addresses.lottery[cID],
-  });
+  const contract = new ethers.Contract(
+    addresses.lottery[cID],
+    lotteryABI,
+    signer
+  );
 
-  await contract.claimTickets(lotteryId, ticketsIdArray, brackets);
+  // console.log(lotteryId)
+  // console.log(ticketsIdArray)
+  // console.log(brackets)
+  // console.log(contract)
 
-  // console.log(lotteryId);
-  // console.log(ticketsIdArray);
-  // console.log(brackets);
+  // const ticketStatuses = await contract.viewNumbersAndStatusesForTicketIds(ticketsIdArray);
+
+  // console.log(ticketStatuses)
+
+  const tx = await contract.claimTickets(lotteryId, ticketsIdArray, brackets);
+
+  const receipt = await tx.wait();
+
+  const res: txReceipt = {
+    hash: receipt.hash,
+    status: receipt.status === 1 ? true : false,
+  };
+
+  return res;
 }
 
 async function changeRandomizer({

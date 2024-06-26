@@ -22,7 +22,7 @@ import { defaultRPCs } from "../wrappers/rainbowkit";
 import TrophyImg from "../assets/trophy.svg";
 import { CustomConnect, OnChainChange } from "../components/Wallet/Connect";
 import { formatTimestamp } from "../hooks/formatTime";
-import { buyTickets, findMyTickets, txReceipt, viewRewardsForTicketId } from "../hooks/Lottery/calls";
+import { buyTickets, claimTickets, findMyTickets, txReceipt, viewRewardsForTicketId } from "../hooks/Lottery/calls";
 import { getTokenBalance } from "../hooks/getDetails";
 import { useEthersSigner } from "../hooks/wagmiSigner";
 import { TiLinkOutline, TiTick, TiWarning } from "react-icons/ti";
@@ -117,6 +117,7 @@ const Trophy = () => {
   const [myTicket2ModalOpen, setMyTicket2ModalOpen] = useState<boolean>(false);
   const [mainButtonText, setMainButtonText] = useState<string>("");
   const [isBuyLoading, setisBuyLoading] = useState<boolean>(false);
+  const [isClaimLoading, setisClaimLoading] = useState<boolean>(false);
 
   const [bulkTicketDiscount, setBulkTicketDiscount] = useState<string>("0");
   const [discountXTZ, setDiscountXTZ] = useState<string>("0");
@@ -315,25 +316,32 @@ const Trophy = () => {
   };
 
   const handleClaimTickets = async () => {
-    console.log("claiming");
-    setisBuyLoading(true);
+    // console.log("claiming");
+    setisClaimLoading(true);
+
+    const brackets = Object.keys(winningTicketsInRound).reduce((acc: number[], key) => {
+      const brackets = winningTicketsInRound[key].map(bracketResult => bracketResult.bracket);
+      const highestBracket = Math.max(...brackets); // Find the highest bracket in the current array
+      acc.push(highestBracket); // Add the highest bracket to the accumulator array
+      return acc;
+    }, []);
 
     try {
-      // const res = await claimTickets(
-      //   String(latestRound),
-      //   ticketNumbers,
-      //   bulkTicketDiscount,
-      //   cID,
-      //   signer
-      // );
+      const res = await claimTickets({
+        lotteryId: String(roundNo),
+        ticketsIdArray: Object.keys(winningTicketsInRound),
+        brackets: brackets,
+        cID: cID,
+        signer: signer
+      });
 
       // console.log(res);
 
-      // setReceipt(res);
-      setisBuyLoading(false);
+      setReceipt(res);
+      setisClaimLoading(false);
     } catch (error) {
       console.error(error);
-      setisBuyLoading(false);
+      setisClaimLoading(false);
     }
   };
 
@@ -440,6 +448,7 @@ const Trophy = () => {
       }
 
       if (bracketResults.length > 0) {
+        // console.log(bracketResults);
         results[ticketId] = bracketResults;
       }
     }
@@ -447,6 +456,8 @@ const Trophy = () => {
     setWinningTicketsInRound(results);
 
     // console.log(results);
+    // console.log('Total number of results:', Object.keys(results));
+
     // console.log('Total number of results:', Object.keys(results).length);
 
     setTicketNumbersInRound(() => {
@@ -1056,7 +1067,11 @@ const Trophy = () => {
                     {
                       isConnected && (
                         <div className="justify-center grid mb-4">
-                          <button disabled={Object.entries(winningTicketsInRound).length < 1} className="px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleClaimTickets}>Claim Ticket{Object.entries(winningTicketsInRound).length !== 1 && 's'}</button>
+                          <button disabled={Object.entries(winningTicketsInRound).length < 1 || loadingRound || isClaimLoading ||isBuyLoading} className="grid gap-1.5 grid-flow-col items-center px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleClaimTickets}>{
+                            isClaimLoading && (
+                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-cyan-300"/>
+                            )
+                          } Claim Ticket{Object.entries(winningTicketsInRound).length !== 1 && 's'}</button>
                         </div>
                       )
                     }
