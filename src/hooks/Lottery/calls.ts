@@ -49,6 +49,8 @@ const buyTickets = async (lotteryId: string, ticketNumbers: number[][], amount: 
 
   const receipt = await tx.wait();
 
+  // console.log(receipt);
+
   const res: txReceipt = {
     hash: receipt.hash,
     status: receipt.status === 1 ? true : false,

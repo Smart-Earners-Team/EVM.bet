@@ -4,7 +4,8 @@ type AddressType = {
 
 export const addresses = {
     lottery: <AddressType> {
-        9768: "0xFbf681a9515A61be2cA3E75db83e15749A1907E9",
+        // 9768: "0xFbf681a9515A61be2cA3E75db83e15749A1907E9", // old
+        9768: "0x51a60977d4E88843086B85118e0f8673b985EBAF",
         // 128123: "0x2B6Aa77f23d7fC14161E540beFDfAE5e67eFb25d",
         // 128123: "0xd820a73F78c47Ab06e7d6624e7d081ff35a2b9Ec"
         128123: "0x68B5E924DDDdA92dEA7F38f8dCB3386d4854c18F"
