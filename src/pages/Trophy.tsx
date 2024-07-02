@@ -22,7 +22,7 @@ import { defaultRPCs } from "../wrappers/rainbowkit";
 import TrophyImg from "../assets/trophy.svg";
 import { CustomConnect, OnChainChange } from "../components/Wallet/Connect";
 import { formatTimestamp } from "../hooks/formatTime";
-import { buyTickets, findMyTickets, txReceipt, viewRewardsForTicketId } from "../hooks/Lottery/calls";
+import { buyTickets, claimTickets, findMyTickets, txReceipt, viewRewardsForTicketId } from "../hooks/Lottery/calls";
 import { getTokenBalance } from "../hooks/getDetails";
 import { useEthersSigner } from "../hooks/wagmiSigner";
 import { TiLinkOutline, TiTick, TiWarning } from "react-icons/ti";
@@ -31,6 +31,7 @@ import { TfiTicket } from "react-icons/tfi";
 import { RiCheckFill, RiErrorWarningLine } from "react-icons/ri";
 import hourGlass from "../assets/hourglassNewColored.gif";
 import { PiCaretRightBold } from "react-icons/pi";
+import CountdownComponent from "../hooks/countdown";
 
 const evmbetLogo = "/logo.png";
 
@@ -106,6 +107,7 @@ const Trophy = () => {
   const [amtTicket, setamtTicket] = useState<string>("0");
   const [amtTicketInRound, setamtTicketInRound] = useState<string>("0");
   const [amtTicketInLatestRound, setamtTicketInLatestRound] = useState<string>("0");
+  const [ticketRewardsInRound, setTicketRewardsInRound] = useState<string>("0");
   const [winningTicketsInRound, setWinningTicketsInRound] = useState<{
     [key: string]: BracketResult[];
   }>({});
@@ -116,7 +118,9 @@ const Trophy = () => {
   const [myTicketModalOpen, setMyTicketModalOpen] = useState<boolean>(false);
   const [myTicket2ModalOpen, setMyTicket2ModalOpen] = useState<boolean>(false);
   const [mainButtonText, setMainButtonText] = useState<string>("");
+  const [claimStatus, setClaimStatus] = useState<boolean>(false);
   const [isBuyLoading, setisBuyLoading] = useState<boolean>(false);
+  const [isClaimLoading, setisClaimLoading] = useState<boolean>(false);
 
   const [bulkTicketDiscount, setBulkTicketDiscount] = useState<string>("0");
   const [discountXTZ, setDiscountXTZ] = useState<string>("0");
@@ -315,25 +319,32 @@ const Trophy = () => {
   };
 
   const handleClaimTickets = async () => {
-    console.log("claiming");
-    setisBuyLoading(true);
+    // console.log("claiming");
+    setisClaimLoading(true);
+
+    const brackets = Object.keys(winningTicketsInRound).reduce((acc: number[], key) => {
+      const brackets = winningTicketsInRound[key].map(bracketResult => bracketResult.bracket);
+      const highestBracket = Math.max(...brackets); // Find the highest bracket in the current array
+      acc.push(highestBracket); // Add the highest bracket to the accumulator array
+      return acc;
+    }, []);
 
     try {
-      // const res = await claimTickets(
-      //   String(latestRound),
-      //   ticketNumbers,
-      //   bulkTicketDiscount,
-      //   cID,
-      //   signer
-      // );
+      const res = await claimTickets({
+        lotteryId: String(roundNo),
+        ticketsIdArray: Object.keys(winningTicketsInRound),
+        brackets: brackets,
+        cID: cID,
+        signer: signer
+      });
 
       // console.log(res);
 
-      // setReceipt(res);
-      setisBuyLoading(false);
+      setReceipt(res);
+      setisClaimLoading(false);
     } catch (error) {
       console.error(error);
-      setisBuyLoading(false);
+      setisClaimLoading(false);
     }
   };
 
@@ -420,12 +431,14 @@ const Trophy = () => {
     setamtTicketInRound(String(Number(res.totalTickets)));
 
     const results: { [key: string]: BracketResult[]; } = {};
+    let overallPayout: bigint = BigInt(0);
 
     for (let i = 0; i < res.ticketIDs.length; i++) {
       const ticketId = res.ticketIDs[i].toString();
       const bracketResults: BracketResult[] = [];
+      let payout: bigint = BigInt(0);
 
-      for (let j = 0; j < 7; j++) {
+      for (let j = 0; j < 6; j++) {
         const result: bigint = await viewRewardsForTicketId({
           ticketId: BigInt(ticketId),
           cID: cID,
@@ -434,19 +447,32 @@ const Trophy = () => {
           bracket: BigInt(j)
         });
 
+        if (result > payout) {
+          payout = result;
+        }
+
         if (result > BigInt(0)) {
           bracketResults.push({ bracket: j, result });
+        }
+
+        if (j === 5) {
+          overallPayout += payout;
         }
       }
 
       if (bracketResults.length > 0) {
+        // console.log(bracketResults);
         results[ticketId] = bracketResults;
       }
     }
 
     setWinningTicketsInRound(results);
 
+    setTicketRewardsInRound(ethers.formatEther(overallPayout));
+
     // console.log(results);
+    // console.log('Total number of results:', Object.keys(results));
+
     // console.log('Total number of results:', Object.keys(results).length);
 
     setTicketNumbersInRound(() => {
@@ -546,6 +572,24 @@ const Trophy = () => {
     }
   };
 
+  const updateClaimStatus = useCallback(async () => {
+    const res = await findMyTickets({
+      userAddr: String(address),
+      lotteryId: String(roundNo),
+      cursor: 0,
+      size: 100,
+      cID: cID,
+      rpcUrl: await findCompatibleRPC(defaultRPCs, cID)
+    });
+
+    const cStatus = res.ticketClaimStatus.some(item => item === true);
+    setClaimStatus(cStatus);
+  }, [roundNo, txReceipt]);
+
+  useEffect(() => {
+    updateClaimStatus();
+  }, [updateClaimStatus]);
+
   useEffect(() => {
     getData();
   }, [getData]);
@@ -585,15 +629,15 @@ const Trophy = () => {
       if (txReceipt.hash !== "") {
         setIsReceiptModalOpen(true); // Show receipt modal
         setTimeout(() => setIsReceiptModalOpen(false), 10000);
-        setReceipt({
-          hash: "",
-          status: false
-        });
+        // setReceipt({
+        //   hash: "",
+        //   status: false
+        // });
       }
     };
 
     txCheck();
-    // console.log(txReceipt)
+    // console.log(txReceipt);
   }, [txReceipt]);
 
   if (isUnsupportedChain && isConnected) {
@@ -662,29 +706,16 @@ const Trophy = () => {
 
           <div className="grid justify-around gap-8">
             {
-              Number(latestRoundInfo.endTime) > Date.now() && (
-                <div className="grid gap-2 text-center">
-                  <h1 className="text-2xl font-black">Get your tickets now!</h1>
-                  <div className="items-center space-x-2 text-3xl">
-                    <span className="space-x-3 font-black text-cyan-500">
-                      <span className="space-x-1">
-                        <span>3</span>
-                        <span className="text-xl">h</span>
-                      </span>
-                      <span className="space-x-1">
-                        <span>45</span>
-                        <span className="text-xl">m</span>
-                      </span>
-                    </span>
-                    <span className="text-lg">until the draw</span>
-                  </div>
+              Number(latestRoundInfo.endTime) > (Date.now() / 1000) && (
+                <div className="grid gap-2 justify-center">
+                  <CountdownComponent endTime={latestRoundInfo.endTime} format="hourly" />
                 </div>
               )
             }
 
             {
               Number(latestRoundInfo.endTime) ? (
-                Number(latestRoundInfo.endTime) > Date.now() ? (
+                Number(latestRoundInfo.endTime) > (Date.now() / 1000) ? (
                   <div className="max-w-2xl shadow min-w-80 rounded-3xl bg-cyan-900/30 backdrop-blur-sm text-cyan-50">
                     <div className="grid items-center justify-between grid-flow-col py-5 px-7 bg-cyan-950/50 rounded-t-3xl">
                       <div className="hidden text-base font-black md:block">
@@ -746,7 +777,7 @@ const Trophy = () => {
                         </div>
 
                         <button
-                          // disabled={!(Number(latestRoundInfo.endTime) > Date.now())}
+                          // disabled={!(Number(latestRoundInfo.endTime) > (Date.now()/1000))}
                           onClick={() => setBuyModalOpen(true)}
                           className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -1033,7 +1064,7 @@ const Trophy = () => {
                                       </div>
 
                                       {/* <button
-                                        // disabled={!(Number(latestRoundInfo.endTime) > Date.now())}
+                                        // disabled={!(Number(latestRoundInfo.endTime) > (Date.now()/1000))}
                                         onClick={() => setBuyModalOpen(true)}
                                         className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
@@ -1054,10 +1085,25 @@ const Trophy = () => {
                     </div>
 
                     {
-                      isConnected && (
+                      isConnected && claimStatus === false ? (
                         <div className="justify-center grid mb-4">
-                          <button disabled={Object.entries(winningTicketsInRound).length < 1} className="px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleClaimTickets}>Claim Ticket{Object.entries(winningTicketsInRound).length !== 1 && 's'}</button>
+                          <button
+                            disabled={Object.entries(winningTicketsInRound).length < 1 || claimStatus || loadingRound || isClaimLoading || isBuyLoading}
+                            className="grid gap-1.5 grid-flow-col items-center px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handleClaimTickets}
+                          >
+                            {isClaimLoading && (
+                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-cyan-300" />
+                            )}
+                            Claim Ticket{Object.entries(winningTicketsInRound).length !== 1 && 's'}
+                          </button>
                         </div>
+                      ) : (
+                        !loadingRound && Number(ticketRewardsInRound) > 0 && (
+                          <div className="text-center text-xs text-cyan-100 uppercase -mt-1 mb-3">
+                            Congratulations, you won <strong>{ticketRewardsInRound}</strong> XTZ!
+                          </div>
+                        )
                       )
                     }
 
@@ -1826,7 +1872,7 @@ const Trophy = () => {
                   <span
                     className=""
                   >
-                    Congratulations!
+                    Congratulations, you won <strong>{ticketRewardsInRound}</strong> XTZ!
                   </span>
                 </div>
               )
