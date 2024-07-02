@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 interface CountdownObject {
   days: number;
@@ -11,6 +11,7 @@ interface CountdownObject {
 interface CountdownComponentProps {
   endTime: bigint; // Expecting a bigint for the end time
   format?: '24hr' | '12hr' | 'hourly';
+  onCountdownUpdate: (countdown: CountdownObject) => void;
 }
 
 const startCountdown = (
@@ -28,7 +29,7 @@ const startCountdown = (
       hours: 0,
       minutes: 0,
       seconds: 0,
-      message: "Countdown finished!"
+      message: 'Countdown finished!'
     });
     return;
   }
@@ -55,45 +56,20 @@ const startCountdown = (
   onCountdownUpdate(countdownObject);
 };
 
-const CountdownComponent: React.FC<CountdownComponentProps> = ({ endTime, format = 'hourly' }) => {
-  const [countdown, setCountdown] = useState<CountdownObject>({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    message: ''
-  });
-
+const CountdownComponent: React.FC<CountdownComponentProps> = ({
+  endTime,
+  format = 'hourly',
+  onCountdownUpdate
+}) => {
   useEffect(() => {
     const intervalId = setInterval(() => {
-      startCountdown(endTime, setCountdown, format);
+      startCountdown(endTime, onCountdownUpdate, format);
     }, 1000);
 
-    // console.log(endTime)
-    // console.log(Date.now()/1000)
-
     return () => clearInterval(intervalId); // Clean up the interval on component unmount
-  }, [endTime, format]);
+  }, [endTime, format, onCountdownUpdate]);
 
-  return (
-    <div className="text-center text-white">
-      <h2 className="font-bold mb-2">Get your tickets now!</h2>
-      <div className="flex justify-center items-baseline text-2xl">
-        {format !== 'hourly' && (
-          <span className="text-cyan-400 font-bold">
-            {countdown.days} <span className="font-normal mr-1">d</span>
-          </span>
-        )}
-        <span className="text-cyan-400 font-bold">
-          {countdown.hours} <span className="font-normal mr-1">h</span>
-        </span>
-        <span className="text-cyan-400 font-bold">
-          {countdown.minutes} <span className="font-normal mr-2">m</span>
-        </span>
-        <span className="ml-2">until the draw</span>
-      </div>
-    </div>
-  );
+  return null; // Component does not render any content directly
 };
 
 export default CountdownComponent;

@@ -139,6 +139,14 @@ const Trophy = () => {
   const [editLot, setEditLot] = useState<boolean>(false);
   const [loadingRound, setloadingRound] = useState<boolean>(false);
 
+  const [countdown, setCountdown] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    message: ''
+  });
+
   function hasDuplicateArrays(arrays: string[][]): boolean {
     const numberArr: number[][] = arrays.map((subArr) =>
       subArr.map((str) => parseInt(str))
@@ -247,7 +255,7 @@ const Trophy = () => {
     );
     setLatestRound(Number(lotID));
     setLastRound(Number(lastID));
-    setRoundNo(Number(lotID));
+    setRoundNo(Number(lastID));
   }, [cID, address]);
 
   const getRoundInfo = useCallback(async () => {
@@ -599,12 +607,18 @@ const Trophy = () => {
   }, [getRoundInfo]);
 
   useEffect(() => {
+    if (countdown.message === 'Countdown finished!') {
+      getRoundInfo()
+    }
+  }, [countdown]);
+
+  useEffect(() => {
     fetchTicketInRound();
-  }, [roundNo, address, cID]);
+  }, [roundNo, txReceipt, handleBuy, address, cID]);
 
   useEffect(() => {
     fetchTicketInLatestRound();
-  }, [roundNo, latestRound, address, cID]);
+  }, [roundNo, latestRound, txReceipt, handleBuy, address, cID]);
 
   useEffect(() => {
     fetchBulkTicketDiscount();
@@ -708,7 +722,24 @@ const Trophy = () => {
             {
               Number(latestRoundInfo.endTime) > (Date.now() / 1000) && (
                 <div className="grid gap-2 justify-center">
-                  <CountdownComponent endTime={latestRoundInfo.endTime} format="hourly" />
+                  <CountdownComponent endTime={latestRoundInfo.endTime} format="hourly" onCountdownUpdate={setCountdown} />
+                  <div className="text-center text-white">
+                    <h2 className="font-bold mb-2">Get your tickets now!</h2>
+                    <div className="flex justify-center items-baseline text-2xl">
+                      {countdown.days > 0 && (
+                        <span className="text-cyan-400 font-bold">
+                          {countdown.days} <span className="font-normal mr-1">d</span>
+                        </span>
+                      )}
+                      <span className="text-cyan-400 font-bold">
+                        {countdown.hours} <span className="font-normal mr-1">h</span>
+                      </span>
+                      <span className="text-cyan-400 font-bold">
+                        {countdown.minutes} <span className="font-normal mr-2">m</span>
+                      </span>
+                      <span className="ml-2">until the draw</span>
+                    </div>
+                  </div>
                 </div>
               )
             }
@@ -722,7 +753,7 @@ const Trophy = () => {
                         Next Draw
                       </div>
                       <div className="text-xs">
-                        #{latestRound} | Drawn:{" "}
+                        #{latestRound} | Draw Time:{" "}
                         {latestRoundInfo.endTime > BigInt(0) &&
                           `${formatTimestamp(Number(latestRoundInfo.endTime))
                             .formattedDate
@@ -911,14 +942,14 @@ const Trophy = () => {
                             id="round"
                             className="w-16 px-3 py-1 text-sm font-semibold border-2 outline-none rounded-2xl text-cyan-800 border-cyan-500 inset-5"
                             min={1}
-                            max={latestRound}
+                            max={lastRound}
                             value={roundNo}
                             onChange={(e) => {
                               const value = Number(e.target.value);
                               if (!isNaN(value)) {
                                 // Check if the value is not NaN
-                                if (value > latestRound) {
-                                  setRoundNo(latestRound);
+                                if (value > lastRound) {
+                                  setRoundNo(lastRound);
                                 } else {
                                   setRoundNo(value);
                                 }
@@ -949,12 +980,12 @@ const Trophy = () => {
                             roundNo >= 1 && setRoundNo(roundNo + 1)
                           }
                           className="text-xl disabled:cursor-not-allowed disabled:opacity-50"
-                          disabled={roundNo === latestRound}
+                          disabled={roundNo === lastRound}
                         >
                           <LuArrowRight />
                         </button>
                         <button
-                          onClick={() => setRoundNo(latestRound)}
+                          onClick={() => setRoundNo(lastRound)}
                           className="text-xl disabled:cursor-not-allowed disabled:opacity-50"
                           disabled
                         >
@@ -1398,7 +1429,7 @@ const Trophy = () => {
                     <div className="ml-5 list-item">
                       An sizable amount of XTZ from the treasury is added
                       to lottery rounds over the course of a week. This XTZ is
-                      of course also included in rollovers! 
+                      of course also included in rollovers!
                       {/* Read more in our
                       guide to{" "}
                       <Link to={""} className="text-cyan-400">
@@ -1510,12 +1541,16 @@ const Trophy = () => {
               <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
 
               <div className="flex flex-col items-center space-y-2">
-                <Button
+                <button
+                  disabled={isBuyLoading}
                   onClick={handleBuy}
-                  className="bg-cyan-800 text-white py-2 px-4 rounded-md w-full"
+                  className="w-full rounded-md grid gap-1.5 grid-flow-col items-center px-4 py-2 my-2 text-xs font-semibold text-center justify-center duration-500 border border-dotted outline-none bg-cyan-900 text-cyan-50 hover:bg-cyan-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
+                  {isBuyLoading && (
+                    <div className="animate-spin justify-start rounded-full h-4 w-4 border-t-2 border-b-2 border-cyan-300" />
+                  )}
                   Confirm and buy
-                </Button>
+                </button>
                 <Button
                   onClick={() => setEditLot(false)}
                   className="mt-2 flex items-center space-x-1 text-cyan-900 font-semibold group"
@@ -1884,6 +1919,13 @@ const Trophy = () => {
       <Modal
         open={isReceiptModalOpen}
         onCancel={() => {
+          setIsReceiptModalOpen(false);
+          setReceipt({
+            hash: "",
+            status: false,
+          });
+        }}
+        onOk={() => {
           setIsReceiptModalOpen(false);
           setReceipt({
             hash: "",
