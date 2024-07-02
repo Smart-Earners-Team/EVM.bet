@@ -50,6 +50,11 @@ Lottery contract: [0xC1D2eB15b09dE06d1c70559963B731D2f2965d82](https://testnet-e
 RandomnessReceiver contract: [0xC670060dED5057fBeC4D55cCd4446901A3E6E3f0](https://testnet-explorer.etherlink.com/address/0xC670060dED5057fBeC4D55cCd4446901A3E6E3f0)
 
 
+### Github Action Status Badge
+
+[![EVM.bet Scheduler](https://github.com/Smart-Earners-Team/Automations/actions/workflows/evm-bet-scheduler.yml/badge.svg)](https://github.com/Smart-Earners-Team/Automations/actions/workflows/evm-bet-scheduler.yml)
+
+Used to automate the calls to **closeLottery**, **startLottery** & **drawFinalNumberAndMakeLotteryClaimable** on the lottery smart contract.
 
 
 
