@@ -39,7 +39,7 @@ export const RainbowKit = ({ children }: { children: React.ReactNode }) => {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider coolMode theme={theme} appInfo={{
+                <RainbowKitProvider coolMode theme={theme} initialChain={testXTZ} appInfo={{
                     appName: "EVM.bet",
                     // disclaimer: Disclaimer
                 }}>
