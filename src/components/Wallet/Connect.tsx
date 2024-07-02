@@ -67,7 +67,7 @@ const Connect = ({ onChainChange }: { onChainChange?: OnChainChange }) => {
 
                             return (
                                 <div className="flex gap-5">
-                                    <button
+                                    {/* <button
                                         className="flex items-center border px-3 py-2 hover:opacity-75 duration-500 rounded border-dashed"
                                         onClick={openChainModal}
                                     >
@@ -92,7 +92,7 @@ const Connect = ({ onChainChange }: { onChainChange?: OnChainChange }) => {
                                             </div>
                                         )}
                                         {chain.name}
-                                    </button>
+                                    </button> */}
 
                                     <button className="flex items-center border px-3 py-2 hover:opacity-75 duration-500 rounded" onClick={openAccountModal} type="button">
                                         {account.displayName}

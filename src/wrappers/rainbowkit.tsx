@@ -22,7 +22,7 @@ const config = getDefaultConfig({
 const queryClient = new QueryClient();
 
 export const defaultRPCs = [
-    // "https://node.ghostnet.etherlink.com",
+    "https://node.ghostnet.etherlink.com",
     // "https://etherlink-ghostnet-6lcp5r.zeeve.net/rpc",
     "https://testnet-rpc.mainnetz.io",
   ];

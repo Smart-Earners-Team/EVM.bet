@@ -2,7 +2,7 @@ import { useAccount, useChainId, useConfig, useSwitchChain } from "wagmi";
 import { useCallback, useEffect, useState } from "react";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import { LuArrowLeft, LuArrowRight, LuArrowRightToLine } from "react-icons/lu";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import { ethers } from "ethers";
 import Head from "react-helmet";
 import { Layout } from "../components/Layout";
@@ -1350,13 +1350,14 @@ const Trophy = () => {
                   <div className="grid gap-2">
                     <div className="text-xl font-semibold">XTZ Injections</div>
                     <div className="ml-5 list-item">
-                      An average total of 35,000 XTZ from the treasury is added
+                      An sizable amount of XTZ from the treasury is added
                       to lottery rounds over the course of a week. This XTZ is
-                      of course also included in rollovers! Read more in our
+                      of course also included in rollovers! 
+                      {/* Read more in our
                       guide to{" "}
                       <Link to={""} className="text-cyan-400">
                         XTZ Tokenomics
-                      </Link>
+                      </Link> */}
                     </div>
                   </div>
                 </div>
@@ -1374,7 +1375,7 @@ const Trophy = () => {
 
             <hr className="divide-y-2" />
 
-            <div className="flex items-center max-w-xl gap-2 mx-auto">
+            {/* <div className="flex items-center max-w-xl gap-2 mx-auto">
               <img
                 src={TrophyImg}
                 alt={"TrophyImg"}
@@ -1392,7 +1393,7 @@ const Trophy = () => {
                   </Link>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </Layout>

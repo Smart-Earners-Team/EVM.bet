@@ -20,7 +20,7 @@ const Footer = () => {
           </a>
           <a
             className="hover:scale-150 hover:text-cyan-300 duration-500"
-            href="https://github.com/"
+            href="https://github.com/Smart-Earners-Team/EVM.bet/"
             target="_blank"
           >
             <FaGithub />
