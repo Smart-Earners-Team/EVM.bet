@@ -45,9 +45,9 @@ Website: [EVM.bet](https://EVM.bet)
 
 MVP video: 
 
-Lottery contract:
+Lottery contract: [0xC1D2eB15b09dE06d1c70559963B731D2f2965d82](https://testnet-explorer.etherlink.com/address/0xC1D2eB15b09dE06d1c70559963B731D2f2965d82)
 
-RandomnessReceiver contract:
+RandomnessReceiver contract: [0xC670060dED5057fBeC4D55cCd4446901A3E6E3f0](https://testnet-explorer.etherlink.com/address/0xC670060dED5057fBeC4D55cCd4446901A3E6E3f0)
 
 
 
