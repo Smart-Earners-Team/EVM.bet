@@ -94,7 +94,7 @@ export const getCurrentPrizeInUSD = async (roundNo: string, cID: number) => {
   const amtInXTZ: string = await getCurrentprizeInXTZ(roundNo, cID);
   // console.log(amtInXTZ);
 
-  const Price = 2.1;
+  const Price = 2789.239;
 
   const prizeInUSD = Number(amtInXTZ) * Price;
 

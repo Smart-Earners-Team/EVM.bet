@@ -12,9 +12,7 @@ const Landing = () => {
                     <div className="py-6 relative">
                         <h1 className="font-black text-4xl md:text-5xl">EVM.bet Lottery</h1>
                         <p className="my-5">
-                            The EVM.bet Lottery is EtherLink's number one play-to-earn game.
-                            Playing gives you a chance to win huge XTZ prizes! It's easy, fair, and you can enter as often as you like as
-                            long as you have the XTZ to buy a ticket.
+                            Playing gives you a chance to win huge XTZ prizes! No middleman, no KYC, no tampering, no bullsh*t. 
                         </p>
                         <img src={evmbetLogo} className="absolute p-5 -top-1/2 opacity-5 w-[100rem] z-0" />
                     </div>
@@ -61,6 +59,6 @@ const cardProps = [
         name: 'Trophy',
         src: TrophyImg,
         route: '/trophy',
-        desc: `Playing the EVM.bet Lottery gives you a chance to win huge XTZ prizes! It's easy, fair, and you can enter as often as you like as long as you have the XTZ to buy a ticket.`
+        desc: `Match the Numbers, Claim the Trophy – Your Big Win Awaits! It's easy, fair, and you can enter as often as you like.`
     },
 ]

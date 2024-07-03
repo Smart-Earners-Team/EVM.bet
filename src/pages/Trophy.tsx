@@ -22,7 +22,13 @@ import { defaultRPCs } from "../wrappers/rainbowkit";
 import TrophyImg from "../assets/trophy.svg";
 import { CustomConnect, OnChainChange } from "../components/Wallet/Connect";
 import { formatTimestamp } from "../hooks/formatTime";
-import { buyTickets, claimTickets, findMyTickets, txReceipt, viewRewardsForTicketId } from "../hooks/Lottery/calls";
+import {
+  buyTickets,
+  claimTickets,
+  findMyTickets,
+  txReceipt,
+  viewRewardsForTicketId,
+} from "../hooks/Lottery/calls";
 import { getTokenBalance } from "../hooks/getDetails";
 import { useEthersSigner } from "../hooks/wagmiSigner";
 import { TiLinkOutline, TiTick, TiWarning } from "react-icons/ti";
@@ -106,7 +112,8 @@ const Trophy = () => {
   const [moreR, setMoreR] = useState<boolean>(false);
   const [amtTicket, setamtTicket] = useState<string>("0");
   const [amtTicketInRound, setamtTicketInRound] = useState<string>("0");
-  const [amtTicketInLatestRound, setamtTicketInLatestRound] = useState<string>("0");
+  const [amtTicketInLatestRound, setamtTicketInLatestRound] =
+    useState<string>("0");
   const [ticketRewardsInRound, setTicketRewardsInRound] = useState<string>("0");
   const [winningTicketsInRound, setWinningTicketsInRound] = useState<{
     [key: string]: BracketResult[];
@@ -144,7 +151,7 @@ const Trophy = () => {
     hours: 0,
     minutes: 0,
     seconds: 0,
-    message: ''
+    message: "",
   });
 
   function hasDuplicateArrays(arrays: string[][]): boolean {
@@ -184,15 +191,21 @@ const Trophy = () => {
     Array.from({ length: Number(amtTicket) }, generateRandomDigitsArray)
   );
 
-  const [ticketNumbersInRound, setTicketNumbersInRound] = useState<string[][]>([]);
+  const [ticketNumbersInRound, setTicketNumbersInRound] = useState<string[][]>(
+    []
+  );
 
-  const [ticketNumbersInLatestRound, setTicketNumbersInLatestRound] = useState<string[][]>([]);
+  const [ticketNumbersInLatestRound, setTicketNumbersInLatestRound] = useState<
+    string[][]
+  >([]);
 
-  const [userRoundInfo, setUserRoundInfo] = useState<{
-    number: number;
-    date: string;
-    tickets: number;
-  }[]>([]);
+  const [userRoundInfo, setUserRoundInfo] = useState<
+    {
+      number: number;
+      date: string;
+      tickets: number;
+    }[]
+  >([]);
 
   // useEffect to update digitsArr whenever amtTicket changes
   useEffect(() => {
@@ -280,7 +293,9 @@ const Trophy = () => {
     setPrizeInUSD(String(await getCurrentPrizeInUSD(String(roundNo), cID)));
     // console.log(await getCurrentPrizeInUSD(String(roundNo), cID));
 
-    setPrizeInUSD2(String(await getCurrentPrizeInUSD(String(latestRound), cID)));
+    setPrizeInUSD2(
+      String(await getCurrentPrizeInUSD(String(latestRound), cID))
+    );
     // console.log(await getCurrentPrizeInUSD2(String(latestRound), cID));
 
     setloadingRound(false);
@@ -294,11 +309,14 @@ const Trophy = () => {
     // console.log("prizeInUSD", prizeInUSD);
   }, [roundNo, roundHistory]);
 
-  const ticketNumbers = digitsArr.length > 0 ? digitsArr.map(val => {
-    const newArr = val.map(item => Number(item));
-    newArr.unshift(1);
-    return newArr;
-  }) : [];
+  const ticketNumbers =
+    digitsArr.length > 0
+      ? digitsArr.map((val) => {
+          const newArr = val.map((item) => Number(item));
+          newArr.unshift(1);
+          return newArr;
+        })
+      : [];
 
   // console.log(ticketNumbers);
 
@@ -330,12 +348,17 @@ const Trophy = () => {
     // console.log("claiming");
     setisClaimLoading(true);
 
-    const brackets = Object.keys(winningTicketsInRound).reduce((acc: number[], key) => {
-      const brackets = winningTicketsInRound[key].map(bracketResult => bracketResult.bracket);
-      const highestBracket = Math.max(...brackets); // Find the highest bracket in the current array
-      acc.push(highestBracket); // Add the highest bracket to the accumulator array
-      return acc;
-    }, []);
+    const brackets = Object.keys(winningTicketsInRound).reduce(
+      (acc: number[], key) => {
+        const brackets = winningTicketsInRound[key].map(
+          (bracketResult) => bracketResult.bracket
+        );
+        const highestBracket = Math.max(...brackets); // Find the highest bracket in the current array
+        acc.push(highestBracket); // Add the highest bracket to the accumulator array
+        return acc;
+      },
+      []
+    );
 
     try {
       const res = await claimTickets({
@@ -343,7 +366,7 @@ const Trophy = () => {
         ticketsIdArray: Object.keys(winningTicketsInRound),
         brackets: brackets,
         cID: cID,
-        signer: signer
+        signer: signer,
       });
 
       // console.log(res);
@@ -387,7 +410,7 @@ const Trophy = () => {
         cursor: 0,
         size: 100,
         cID: cID,
-        rpcUrl: await findCompatibleRPC(defaultRPCs, cID)
+        rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
       });
 
       if (res.totalTickets > 0) {
@@ -411,11 +434,10 @@ const Trophy = () => {
       number: number;
       date: string;
       tickets: number;
-    }[] = array.map(item => ({
+    }[] = array.map((item) => ({
       number: item.roundNo,
-      date: formatTimestamp(Number(item.date))
-        .formattedDate,
-      tickets: Number(item.totalTickets)
+      date: formatTimestamp(Number(item.date)).formattedDate,
+      tickets: Number(item.totalTickets),
     }));
 
     // console.log(result);
@@ -426,74 +448,163 @@ const Trophy = () => {
     fetchUserRoundsInfo();
   }, [latestRound]);
 
+  //   const fetchTicketInRound = async () => {
+  //     const res = await findMyTickets({
+  //       userAddr: String(address),
+  //       lotteryId: String(roundNo),
+  //       cursor: 0,
+  //       size: 100,
+  //       cID: cID,
+  //       rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
+  //     });
+
+  //     setTicketNumbersInRound(() => {
+  //       // console.log(arr);
+  //       return res.ticketNumbers.map(val =>
+  //         val.toString()
+  //           .substring(1)
+  //           .split("")
+  //           .reverse()
+  //           .join("")
+  //           .split("")
+  //       );
+  //     });
+
+  //     setamtTicketInRound(String(Number(res.totalTickets)));
+
+  //     const results: { [key: string]: BracketResult[]; } = {};
+  //     let overallPayout: bigint = BigInt(0);
+
+  //     for (let i = 0; i < res.ticketIDs.length; i++) {
+  //       const ticketId = res.ticketIDs[i].toString();
+  //       const bracketResults: BracketResult[] = [];
+  //       let payout: bigint = BigInt(0);
+
+  //       const promises = [];
+  // for (let j = 0; j < 6; j++) {
+  //     promises.push(viewRewardsForTicketId({
+  //         ticketId: BigInt(ticketId),
+  //         cID: cID,
+  //         rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
+  //         lotteryId: String(roundNo),
+  //         bracket: BigInt(j)
+  //     }));
+  // }
+  // const resultsArray = await Promise.all(promises);
+
+  // console.log(resultsArray)
+
+  //       // for (let j = 0; j < 6; j++) {
+  //       //   const result: bigint = await viewRewardsForTicketId({
+  //       //     ticketId: BigInt(ticketId),
+  //       //     cID: cID,
+  //       //     rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
+  //       //     lotteryId: String(roundNo),
+  //       //     bracket: BigInt(j)
+  //       //   });
+
+  //       //   if (result > payout) {
+  //       //     payout = result;
+  //       //   }
+
+  //       //   if (result > BigInt(0)) {
+  //       //     bracketResults.push({ bracket: j, result });
+  //       //   }
+
+  //       //   if (j === 5) {
+  //       //     overallPayout += payout;
+  //       //   }
+  //       // }
+
+  //       if (bracketResults.length > 0) {
+  //         // console.log(bracketResults);
+  //         results[ticketId] = bracketResults;
+  //       }
+  //     }
+
+  //     setWinningTicketsInRound(results);
+
+  //     setTicketRewardsInRound(ethers.formatEther(overallPayout));
+
+  //     // console.log(results);
+  //     // console.log('Total number of results:', Object.keys(results));
+
+  //     // console.log('Total number of results:', Object.keys(results).length);
+
+  //     // setTicketNumbersInRound(() => {
+  //     //   // console.log(arr);
+  //     //   return res.ticketNumbers.map(val =>
+  //     //     val.toString()
+  //     //       .substring(1)
+  //     //       .split("")
+  //     //       .reverse()
+  //     //       .join("")
+  //     //       .split("")
+  //     //   );
+  //     // });
+  //   };
+
   const fetchTicketInRound = async () => {
-    const res = await findMyTickets({
-      userAddr: String(address),
-      lotteryId: String(roundNo),
-      cursor: 0,
-      size: 100,
-      cID: cID,
-      rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
-    });
+    try {
+      const res = await findMyTickets({
+        userAddr: String(address),
+        lotteryId: String(roundNo),
+        cursor: 0,
+        size: 100,
+        cID: cID,
+        rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
+      });
 
-    setamtTicketInRound(String(Number(res.totalTickets)));
+      setTicketNumbersInRound(() => {
+        return res.ticketNumbers.map((val) =>
+          val.toString().substring(1).split("").reverse().join("").split("")
+        );
+      });
 
-    const results: { [key: string]: BracketResult[]; } = {};
-    let overallPayout: bigint = BigInt(0);
+      setamtTicketInRound(String(Number(res.totalTickets)));
 
-    for (let i = 0; i < res.ticketIDs.length; i++) {
-      const ticketId = res.ticketIDs[i].toString();
-      const bracketResults: BracketResult[] = [];
-      let payout: bigint = BigInt(0);
+      const results: { [key: string]: BracketResult[] } = {}; // Define results type explicitly
+      let overallPayout = BigInt(0);
 
-      for (let j = 0; j < 6; j++) {
-        const result: bigint = await viewRewardsForTicketId({
-          ticketId: BigInt(ticketId),
-          cID: cID,
-          rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
-          lotteryId: String(roundNo),
-          bracket: BigInt(j)
-        });
+      const promises = res.ticketIDs.map(async (ticketId) => {
+        const ticketIdStr = ticketId.toString();
+        const bracketResults: BracketResult[] = [];
+        let payout: bigint = BigInt(0);
 
-        if (result > payout) {
-          payout = result;
+        for (let j = 0; j < 6; j++) {
+          const result = await viewRewardsForTicketId({
+            ticketId: ticketId,
+            cID: cID,
+            rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
+            lotteryId: String(roundNo),
+            bracket: BigInt(j),
+          });
+
+          if (result > BigInt(0)) {
+            bracketResults.push({ bracket: j, result });
+          }
+
+          if (result > payout) {
+            payout = result;
+          }
+
+          if (j === 5) {
+            overallPayout += payout;
+          }
         }
 
-        if (result > BigInt(0)) {
-          bracketResults.push({ bracket: j, result });
+        if (bracketResults.length > 0) {
+          results[ticketIdStr] = bracketResults; // Use bracketResults with type safety
         }
+      });
 
-        if (j === 5) {
-          overallPayout += payout;
-        }
-      }
+      await Promise.all(promises);
 
-      if (bracketResults.length > 0) {
-        // console.log(bracketResults);
-        results[ticketId] = bracketResults;
-      }
+      setWinningTicketsInRound(results);
+      setTicketRewardsInRound(ethers.formatEther(overallPayout));
+    } catch (error) {
+      console.error("Error fetching tickets and rewards:", error);
     }
-
-    setWinningTicketsInRound(results);
-
-    setTicketRewardsInRound(ethers.formatEther(overallPayout));
-
-    // console.log(results);
-    // console.log('Total number of results:', Object.keys(results));
-
-    // console.log('Total number of results:', Object.keys(results).length);
-
-    setTicketNumbersInRound(() => {
-      // console.log(arr);
-      return res.ticketNumbers.map(val =>
-        val.toString()
-          .substring(1)
-          .split("")
-          .reverse()
-          .join("")
-          .split("")
-      );
-    });
   };
 
   const fetchTicketInLatestRound = async () => {
@@ -541,13 +652,8 @@ const Trophy = () => {
 
     setTicketNumbersInLatestRound(() => {
       // console.log(arr);
-      return res.ticketNumbers.map(val =>
-        val.toString()
-          .substring(1)
-          .split("")
-          .reverse()
-          .join("")
-          .split("")
+      return res.ticketNumbers.map((val) =>
+        val.toString().substring(1).split("").reverse().join("").split("")
       );
     });
   };
@@ -561,14 +667,14 @@ const Trophy = () => {
       const res =
         Number(amtTicket) > 0
           ? ethers.formatEther(
-            await calculatePrizeForBulkTickets(
-              latestRoundInfo.discountDivisor,
-              latestRoundInfo.priceTicketInMetis,
-              Number(amtTicket),
-              cID,
-              await findCompatibleRPC(defaultRPCs, cID)
+              await calculatePrizeForBulkTickets(
+                latestRoundInfo.discountDivisor,
+                latestRoundInfo.priceTicketInMetis,
+                Number(amtTicket),
+                cID,
+                await findCompatibleRPC(defaultRPCs, cID)
+              )
             )
-          )
           : String(0);
 
       const discountPercent = ((cost - Number(res)) / cost) * 100;
@@ -587,10 +693,10 @@ const Trophy = () => {
       cursor: 0,
       size: 100,
       cID: cID,
-      rpcUrl: await findCompatibleRPC(defaultRPCs, cID)
+      rpcUrl: await findCompatibleRPC(defaultRPCs, cID),
     });
 
-    const cStatus = res.ticketClaimStatus.some(item => item === true);
+    const cStatus = res.ticketClaimStatus.some((item) => item === true);
     setClaimStatus(cStatus);
   }, [roundNo, txReceipt]);
 
@@ -607,14 +713,14 @@ const Trophy = () => {
   }, [getRoundInfo]);
 
   useEffect(() => {
-    if (countdown.message === 'Countdown finished!') {
-      getRoundInfo()
+    if (countdown.message === "Countdown finished!") {
+      getRoundInfo();
     }
   }, [countdown]);
 
   useEffect(() => {
     fetchTicketInRound();
-  }, [roundNo, txReceipt, handleBuy, address, cID]);
+  }, [roundNo, address, cID]);
 
   useEffect(() => {
     fetchTicketInLatestRound();
@@ -704,9 +810,9 @@ const Trophy = () => {
               <h1 className="text-2xl font-bold">EVM.bet Trophy</h1>
               <div
                 className="my-2 text-4xl font-black md:text-6xl text-cyan-500 text-ellipsis truncate"
-                title={`$${Number(prizeInUSD).toLocaleString()}`}
+                title={`$${Number(prizeInUSD2).toLocaleString()}`}
               >
-                {`$${Number(prizeInUSD).toLocaleString()}`}
+                {`$${Number(prizeInUSD2).toLocaleString()}`}
               </div>
               <div className="text-xl font-semibold">in Prizes!</div>
               <img
@@ -719,175 +825,182 @@ const Trophy = () => {
           </div>
 
           <div className="grid justify-around gap-8">
-            {
-              Number(latestRoundInfo.endTime) > (Date.now() / 1000) && (
-                <div className="grid gap-2 justify-center">
-                  <CountdownComponent endTime={latestRoundInfo.endTime} format="hourly" onCountdownUpdate={setCountdown} />
-                  <div className="text-center text-white">
-                    <h2 className="font-bold mb-2">Get your tickets now!</h2>
-                    <div className="flex justify-center items-baseline text-2xl">
-                      {countdown.days > 0 && (
-                        <span className="text-cyan-400 font-bold">
-                          {countdown.days} <span className="font-normal mr-1">d</span>
-                        </span>
-                      )}
+            {Number(latestRoundInfo.endTime) > Date.now() / 1000 && (
+              <div className="grid gap-2 justify-center">
+                <CountdownComponent
+                  endTime={latestRoundInfo.endTime}
+                  format="hourly"
+                  onCountdownUpdate={setCountdown}
+                />
+                <div className="text-center text-white">
+                  <h2 className="font-bold mb-2">Get your tickets now!</h2>
+                  <div className="flex justify-center items-baseline text-2xl">
+                    {countdown.days > 0 && (
                       <span className="text-cyan-400 font-bold">
-                        {countdown.hours} <span className="font-normal mr-1">h</span>
+                        {countdown.days}{" "}
+                        <span className="font-normal mr-1">d</span>
                       </span>
-                      <span className="text-cyan-400 font-bold">
-                        {countdown.minutes} <span className="font-normal mr-2">m</span>
-                      </span>
-                      <span className="ml-2">until the draw</span>
-                    </div>
+                    )}
+                    <span className="text-cyan-400 font-bold">
+                      {countdown.hours}{" "}
+                      <span className="font-normal mr-1">h</span>
+                    </span>
+                    <span className="text-cyan-400 font-bold">
+                      {countdown.minutes}{" "}
+                      <span className="font-normal mr-2">m</span>
+                    </span>
+                    <span className="ml-2">until the draw</span>
                   </div>
                 </div>
-              )
-            }
+              </div>
+            )}
 
-            {
-              Number(latestRoundInfo.endTime) ? (
-                Number(latestRoundInfo.endTime) > (Date.now() / 1000) ? (
-                  <div className="max-w-2xl shadow min-w-80 rounded-3xl bg-cyan-900/30 backdrop-blur-sm text-cyan-50">
-                    <div className="grid items-center justify-between grid-flow-col py-5 px-7 bg-cyan-950/50 rounded-t-3xl">
-                      <div className="hidden text-base font-black md:block">
-                        Next Draw
-                      </div>
-                      <div className="text-xs">
-                        #{latestRound} | Draw Time:{" "}
-                        {latestRoundInfo.endTime > BigInt(0) &&
-                          `${formatTimestamp(Number(latestRoundInfo.endTime))
+            {Number(latestRoundInfo.endTime) ? (
+              Number(latestRoundInfo.endTime) > Date.now() / 1000 ? (
+                <div className="max-w-2xl shadow min-w-80 rounded-3xl bg-cyan-900/30 backdrop-blur-sm text-cyan-50">
+                  <div className="grid items-center justify-between grid-flow-col py-5 px-7 bg-cyan-950/50 rounded-t-3xl">
+                    <div className="hidden text-base font-black md:block">
+                      Next Draw
+                    </div>
+                    <div className="text-xs">
+                      #{latestRound} | Draw Time:{" "}
+                      {latestRoundInfo.endTime > BigInt(0) &&
+                        `${
+                          formatTimestamp(Number(latestRoundInfo.endTime))
                             .formattedDate
-                          } | ${formatTimestamp(Number(latestRoundInfo.endTime))
+                        } | ${
+                          formatTimestamp(Number(latestRoundInfo.endTime))
                             .formattedTime
-                          }`}
-                      </div>
+                        }`}
                     </div>
+                  </div>
 
-                    <div className="grid gap-5 py-5 text-center px-7">
-                      <div className="grid md:gap-5 md:grid-flow-col justify-items-center md:justify-start">
-                        <div className="self-start py-0.5 font-bold text-base">
-                          Prize Pot:
+                  <div className="grid gap-5 py-5 text-center px-7">
+                    <div className="grid md:gap-5 md:grid-flow-col justify-items-center md:justify-start">
+                      <div className="self-start py-0.5 font-bold text-base">
+                        Prize Pot:
+                      </div>
+                      <div className="grid self-start gap-1">
+                        <div className="text-3xl font-bold text-cyan-200 text-ellipsis truncate">
+                          ~${Number(prizeInUSD2).toLocaleString()}
                         </div>
-                        <div className="grid self-start gap-1">
-                          <div className="text-3xl font-bold text-cyan-200 text-ellipsis truncate">
-                            ~${Number(prizeInUSD2).toLocaleString()}
-                          </div>
-                          <div className="text-xs md:self-start">
-                            {latestRoundInfo.amountCollectedInMetis > BigInt(0)
-                              ? Number(
-                                ethers.formatEther(latestRoundInfo.amountCollectedInMetis)
+                        <div className="text-xs md:self-start">
+                          {latestRoundInfo.amountCollectedInMetis > BigInt(0)
+                            ? Number(
+                                ethers.formatEther(
+                                  latestRoundInfo.amountCollectedInMetis
+                                )
                               ).toLocaleString()
-                              : 0}{" "}
-                            XTZ
-                          </div>
+                            : 0}{" "}
+                          XTZ
                         </div>
-                      </div>
-
-                      <div className="grid text-sm md:gap-5 md:grid-flow-col items-center">
-                        <div className="py-0.5 font-bold text-base">
-                          Your Tickets:
-                        </div>
-                        <div className="grid gap-2 my-2 justify-center items-center">
-                          <div className="space-x-1">
-                            <span>You have</span>
-                            <span
-                              children={amtTicketInLatestRound}
-                              className="text-cyan-50 w-32 text-sm font-semibold"
-                            />
-                            <span>ticket(s) in this round</span>
-                          </div>
-                          {
-                            Number(amtTicketInLatestRound) > 0 && (
-                              <button
-                                onClick={() => setMyTicketModalOpen(true)}
-                                className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
-                                children={"View your tickets"}
-                              />
-                            )
-                          }
-                        </div>
-
-                        <button
-                          // disabled={!(Number(latestRoundInfo.endTime) > (Date.now()/1000))}
-                          onClick={() => setBuyModalOpen(true)}
-                          className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Buy Tickets
-                        </button>
-
                       </div>
                     </div>
 
-                    <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
-
-                    {more && (
-                      <div className="grid gap-5 py-5 px-7 bg-cyan-950/50">
-                        <div className="text-xs">
-                          Match the winning number in the same order to share prizes.
-                          Current prizes up for grabs:
-                        </div>
-                        <div className="grid justify-between grid-cols-3 gap-5 md:grid-cols-4">
-                          {latestRoundInfo.rewardsBreakdown.map((val, i) => (
-                            <div key={i} className="grid text-sm justify-items-start">
-                              <div className="text-xs font-bold text-cyan-500">
-                                Match First {i + 1}
-                              </div>
-                              <div className="space-x-2">
-                                <span className="text-base font-semibold">
-                                  {(
-                                    (Number(val) / 10000) *
-                                    Number(
-                                      ethers.formatEther(
-                                        latestRoundInfo.amountCollectedInMetis
-                                      )
-                                    )
-                                  ).toFixed(3)}
-                                </span>
-                                <span className="text-sm">XTZ</span>
-                              </div>
-                              <div className="text-xs opacity-85">
-                                {/* ~${val.usd.toLocaleString()} */}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                    <div className="grid text-sm md:gap-5 md:grid-flow-col items-center">
+                      <div className="py-0.5 font-bold text-base">
+                        Your Tickets:
                       </div>
-                    )}
-
-                    <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
-
-                    <div className="grid gap-5 py-5 mx-auto text-center px-7 w-fit">
-                      <button
-                        onClick={handleAccordion}
-                        className="grid grid-flow-col px-4 py-2 text-sm font-semibold text-center align-middle duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 group"
-                      >
-                        <span className="">{more ? "Hide" : "Details"}</span>
-                        {more ? (
-                          <FaAngleUp className="my-auto text-xl duration-500 group-hover:py-0.5 justify-self-center" />
-                        ) : (
-                          <FaAngleDown className="my-auto text-xl duration-500 group-hover:py-0.5 justify-self-center" />
+                      <div className="grid gap-2 my-2 justify-center items-center">
+                        <div className="space-x-1">
+                          <span>You have</span>
+                          <span
+                            children={amtTicketInLatestRound}
+                            className="text-cyan-50 w-32 text-sm font-semibold"
+                          />
+                          <span>ticket(s) in this round</span>
+                        </div>
+                        {Number(amtTicketInLatestRound) > 0 && (
+                          <button
+                            onClick={() => setMyTicketModalOpen(true)}
+                            className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
+                            children={"View your tickets"}
+                          />
                         )}
+                      </div>
+
+                      <button
+                        // disabled={!(Number(latestRoundInfo.endTime) > (Date.now()/1000))}
+                        onClick={() => setBuyModalOpen(true)}
+                        className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Buy Tickets
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <div>
-                    <div className="grid pt-3 grid-flow-col justify-center gap-1.5 text-lg tracking-wide text-center">
-                      The <span className="text-gradient font-bold">EVM.bet</span> Lottery
+
+                  <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
+
+                  {more && (
+                    <div className="grid gap-5 py-5 px-7 bg-cyan-950/50">
+                      <div className="text-xs">
+                        Match the winning number in the same order to share
+                        prizes. Current prizes up for grabs:
+                      </div>
+                      <div className="grid justify-between grid-cols-3 gap-5 md:grid-cols-4">
+                        {latestRoundInfo.rewardsBreakdown.map((val, i) => (
+                          <div
+                            key={i}
+                            className="grid text-sm justify-items-start"
+                          >
+                            <div className="text-xs font-bold text-cyan-500">
+                              Match First {i + 1}
+                            </div>
+                            <div className="space-x-2">
+                              <span className="text-base font-semibold">
+                                {(
+                                  (Number(val) / 10000) *
+                                  Number(
+                                    ethers.formatEther(
+                                      latestRoundInfo.amountCollectedInMetis
+                                    )
+                                  )
+                                ).toFixed(3)}
+                              </span>
+                              <span className="text-sm">XTZ</span>
+                            </div>
+                            <div className="text-xs opacity-85">
+                              {/* ~${val.usd.toLocaleString()} */}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+                  )}
 
-                    <img src={hourGlass} className="md:w-96 w-32 mx-auto -my-2" />
+                  <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
 
-                    <div className="grid gap-5 mx-auto text-4xl font-extrabold tracking-wide text-center pb-5 w-fit">
-                      Tickets on sale soon
-                    </div>
-
+                  <div className="grid gap-5 py-5 mx-auto text-center px-7 w-fit">
+                    <button
+                      onClick={handleAccordion}
+                      className="grid grid-flow-col px-4 py-2 text-sm font-semibold text-center align-middle duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 group"
+                    >
+                      <span className="">{more ? "Hide" : "Details"}</span>
+                      {more ? (
+                        <FaAngleUp className="my-auto text-xl duration-500 group-hover:py-0.5 justify-self-center" />
+                      ) : (
+                        <FaAngleDown className="my-auto text-xl duration-500 group-hover:py-0.5 justify-self-center" />
+                      )}
+                    </button>
                   </div>
-                )
+                </div>
               ) : (
-                <img src={evmbetLogo} className="w-8 animate-spin" />
+                <div>
+                  <div className="grid pt-3 grid-flow-col justify-center gap-1.5 text-lg tracking-wide text-center">
+                    The <span className="text-gradient font-bold">EVM.bet</span>{" "}
+                    Lottery
+                  </div>
+
+                  <img src={hourGlass} className="md:w-96 w-32 mx-auto -my-2" />
+
+                  <div className="grid gap-5 mx-auto text-4xl font-extrabold tracking-wide text-center pb-5 w-fit">
+                    Tickets on sale soon
+                  </div>
+                </div>
               )
-            }
+            ) : (
+              <img src={evmbetLogo} className="w-8 animate-spin" />
+            )}
           </div>
 
           <div className="grid justify-around gap-8">
@@ -909,19 +1022,21 @@ const Trophy = () => {
               <div className="grid grid-flow-col gap-1.5 text-sm bg-cyan-900 rounded-3xl p-0.5 font-semibold leading-tight mt-3">
                 <button
                   onClick={() => setRoundHistory("All")}
-                  className={`px-3 py-2 tracking-wide duration-300 ${roundHistory === "All"
-                    ? "bg-cyan-50 text-cyan-800"
-                    : "text-cyan-200"
-                    } rounded-3xl hover:opacity-75 shadow-xl`}
+                  className={`px-3 py-2 tracking-wide duration-300 ${
+                    roundHistory === "All"
+                      ? "bg-cyan-50 text-cyan-800"
+                      : "text-cyan-200"
+                  } rounded-3xl hover:opacity-75 shadow-xl`}
                 >
                   All History
                 </button>
                 <button
                   onClick={() => setRoundHistory("User")}
-                  className={`px-3 py-2 tracking-wide duration-300 ${roundHistory === "User"
-                    ? "bg-cyan-50 text-cyan-800"
-                    : "text-cyan-200"
-                    } rounded-3xl hover:opacity-75 shadow-xl`}
+                  className={`px-3 py-2 tracking-wide duration-300 ${
+                    roundHistory === "User"
+                      ? "bg-cyan-50 text-cyan-800"
+                      : "text-cyan-200"
+                  } rounded-3xl hover:opacity-75 shadow-xl`}
                 >
                   Your History
                 </button>
@@ -960,10 +1075,12 @@ const Trophy = () => {
                         <div className="text-xs">
                           Drawn{" "}
                           {roundInfo.endTime > BigInt(0) &&
-                            `${formatTimestamp(Number(roundInfo.endTime))
-                              .formattedDate
-                            } | ${formatTimestamp(Number(roundInfo.endTime))
-                              .formattedTime
+                            `${
+                              formatTimestamp(Number(roundInfo.endTime))
+                                .formattedDate
+                            } | ${
+                              formatTimestamp(Number(roundInfo.endTime))
+                                .formattedTime
                             }`}
                         </div>
                       </div>
@@ -1000,112 +1117,119 @@ const Trophy = () => {
                           Winning Number
                         </div>
                         <div className="relative items-center grid grid-flow-col gap-2 select-none">
-                          {
-                            loadingRound ? <img src={evmbetLogo} className='w-8 animate-spin m-auto' /> :
-                              <div>
-                                <div className="relative items-center grid grid-flow-col gap-2 select-none">
-                                  {
-                                    /* Number(1533774) */
-                                    Number(roundInfo.finalNumber)
-                                      .toString()
-                                      .substring(1)
-                                      .split("")
-                                      .reverse()
-                                      .join("")
-                                      .split("")
-                                      .map((val, i) => (
-                                        <div key={i} className="relative h-fit w-fit">
-                                          <svg
-                                            viewBox="0 0 32 32"
-                                            color="text"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="w-12 shadow-xl md:w-16"
-                                          >
-                                            <circle
-                                              cx="16"
-                                              cy="16"
-                                              r="16"
-                                              fill={generateColorHash(i ** 2 + 1)}
-                                            />
-                                            <path
-                                              fillRule="evenodd"
-                                              clipRule="evenodd"
-                                              d="M24.343 3.132c4.576 5.74 4.208 14.125-1.106 19.439-5.709 5.709-14.966 5.709-20.675 0q-.42-.42-.798-.864C4.028 27.349 9.55 31.333 16 31.333c8.468 0 15.333-6.865 15.333-15.334 0-5.391-2.783-10.133-6.99-12.867"
-                                              opacity=".1"
-                                              style={{
-                                                mixBlendMode: "multiply",
-                                              }}
-                                            />
-                                            <path
-                                              fillRule="evenodd"
-                                              clipRule="evenodd"
-                                              d="M25.771 4.183c4.86 6.029 4.49 14.878-1.11 20.478s-14.448 5.97-20.477 1.111A15.3 15.3 0 0 0 16 31.332c8.468 0 15.333-6.864 15.333-15.332a15.3 15.3 0 0 0-5.562-11.817"
-                                              opacity=".1"
-                                              style={{
-                                                mixBlendMode: "multiply",
-                                              }}
-                                            />
-                                            <path
-                                              fillRule="evenodd"
-                                              clipRule="evenodd"
-                                              d="M3.49 24.868C.15 18.765.975 11.064 6.02 6.019 11.063.975 18.765.151 24.868 3.49A15.26 15.26 0 0 0 16 .667C7.532.667.667 7.532.667 16c0 3.304 1.045 6.364 2.823 8.868"
-                                              fill="#fff"
-                                              style={{
-                                                mixBlendMode: "soft-light",
-                                              }}
-                                            />
-                                            <path
-                                              fillRule="evenodd"
-                                              clipRule="evenodd"
-                                              d="M2.1 9.514a15.4 15.4 0 0 1 8.392-7.83q.081.072.158.15c1.834 1.833.262 3.91-1.989 6.16-2.25 2.251-4.327 3.823-6.16 1.99a4 4 0 0 1-.4-.47"
-                                              fill="#fff"
-                                              style={{
-                                                mixBlendMode: "soft-light",
-                                              }}
-                                            />
-                                          </svg>
-                                          <div className="absolute text-3xl font-bold rotate-6 top-1.5 md:top-3 text-cyan-50 left-1/3">
-                                            {val}
-                                          </div>
-                                        </div>
-                                      ))
-                                  }
-                                </div>
+                          {loadingRound ? (
+                            <img
+                              src={evmbetLogo}
+                              className="w-8 animate-spin m-auto"
+                            />
+                          ) : (
+                            <div>
+                              <div className="relative items-center grid grid-flow-col gap-2 select-none">
                                 {
-                                  Number(amtTicketInRound) > 0 && (
-                                    <div className="grid text-sm md:gap-5 md:grid-flow-col items-center px-5">
-                                      {/* <div className="py-0.5 font-bold text-base">
+                                  /* Number(1533774) */
+                                  Number(roundInfo.finalNumber)
+                                    .toString()
+                                    .substring(1)
+                                    .split("")
+                                    .reverse()
+                                    .join("")
+                                    .split("")
+                                    .map((val, i) => (
+                                      <div
+                                        key={i}
+                                        className="relative h-fit w-fit"
+                                      >
+                                        <svg
+                                          viewBox="0 0 32 32"
+                                          color="text"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          className="w-12 shadow-xl md:w-16"
+                                        >
+                                          <circle
+                                            cx="16"
+                                            cy="16"
+                                            r="16"
+                                            fill={generateColorHash(i ** 2 + 1)}
+                                          />
+                                          <path
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                            d="M24.343 3.132c4.576 5.74 4.208 14.125-1.106 19.439-5.709 5.709-14.966 5.709-20.675 0q-.42-.42-.798-.864C4.028 27.349 9.55 31.333 16 31.333c8.468 0 15.333-6.865 15.333-15.334 0-5.391-2.783-10.133-6.99-12.867"
+                                            opacity=".1"
+                                            style={{
+                                              mixBlendMode: "multiply",
+                                            }}
+                                          />
+                                          <path
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                            d="M25.771 4.183c4.86 6.029 4.49 14.878-1.11 20.478s-14.448 5.97-20.477 1.111A15.3 15.3 0 0 0 16 31.332c8.468 0 15.333-6.864 15.333-15.332a15.3 15.3 0 0 0-5.562-11.817"
+                                            opacity=".1"
+                                            style={{
+                                              mixBlendMode: "multiply",
+                                            }}
+                                          />
+                                          <path
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                            d="M3.49 24.868C.15 18.765.975 11.064 6.02 6.019 11.063.975 18.765.151 24.868 3.49A15.26 15.26 0 0 0 16 .667C7.532.667.667 7.532.667 16c0 3.304 1.045 6.364 2.823 8.868"
+                                            fill="#fff"
+                                            style={{
+                                              mixBlendMode: "soft-light",
+                                            }}
+                                          />
+                                          <path
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                            d="M2.1 9.514a15.4 15.4 0 0 1 8.392-7.83q.081.072.158.15c1.834 1.833.262 3.91-1.989 6.16-2.25 2.251-4.327 3.823-6.16 1.99a4 4 0 0 1-.4-.47"
+                                            fill="#fff"
+                                            style={{
+                                              mixBlendMode: "soft-light",
+                                            }}
+                                          />
+                                        </svg>
+                                        <div className="absolute text-3xl font-bold rotate-6 top-1.5 md:top-3 text-cyan-50 left-1/3">
+                                          {val}
+                                        </div>
+                                      </div>
+                                    ))
+                                }
+                              </div>
+                              {Number(amtTicketInRound) > 0 && (
+                                <div className="grid text-sm md:gap-5 md:grid-flow-col items-center px-5">
+                                  {/* <div className="py-0.5 font-bold text-base">
                                         Your Tickets:
                                       </div> */}
-                                      <div className="grid gap-2 my-2 justify-center items-center">
-                                        <div className="space-x-1">
-                                          <span>You have</span>
-                                          <span
-                                            children={amtTicketInRound}
-                                            className="text-cyan-50 w-32 text-sm font-semibold"
-                                          />
-                                          <span>ticket(s) in this round</span>
-                                        </div>
+                                  <div className="grid gap-2 my-2 justify-center items-center">
+                                    <div className="space-x-1">
+                                      <span>You have</span>
+                                      <span
+                                        children={amtTicketInRound}
+                                        className="text-cyan-50 w-32 text-sm font-semibold"
+                                      />
+                                      <span>ticket(s) in this round</span>
+                                    </div>
 
-                                        <button
-                                          onClick={() => setMyTicket2ModalOpen(true)}
-                                          className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
-                                          children={"View your tickets"}
-                                        />
-                                      </div>
+                                    <button
+                                      onClick={() =>
+                                        setMyTicket2ModalOpen(true)
+                                      }
+                                      className="text-xs font-bold text-center duration-500 hover:text-cyan-500 outline-none text-cyan-300"
+                                      children={"View your tickets"}
+                                    />
+                                  </div>
 
-                                      {/* <button
+                                  {/* <button
                                         // disabled={!(Number(latestRoundInfo.endTime) > (Date.now()/1000))}
                                         onClick={() => setBuyModalOpen(true)}
                                         className="px-4 py-2 my-2 text-sm font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
                                         Buy Tickets
                                       </button> */}
-                                    </div>
-                                  )
-                                }
-                              </div>
-                          }
+                                </div>
+                              )}
+                            </div>
+                          )}
                           {roundNo === lastRound && (
                             <div className="absolute px-2 py-1 text-xs font-semibold tracking-wide uppercase rotate-[30deg] -right-6 -top-5 text-cyan-900/80 w-fit bg-cyan-50 h-fit rounded-3xl">
                               Latest
@@ -1115,28 +1239,38 @@ const Trophy = () => {
                       </div>
                     </div>
 
-                    {
-                      isConnected && claimStatus === false ? (
-                        <div className="justify-center grid mb-4">
-                          <button
-                            disabled={Object.entries(winningTicketsInRound).length < 1 || claimStatus || loadingRound || isClaimLoading || isBuyLoading}
-                            className="grid gap-1.5 grid-flow-col items-center px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={handleClaimTickets}
-                          >
-                            {isClaimLoading && (
-                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-cyan-300" />
-                            )}
-                            Claim Ticket{Object.entries(winningTicketsInRound).length !== 1 && 's'}
-                          </button>
+                    {isConnected && claimStatus === false ? (
+                      <div className="justify-center grid mb-4">
+                        <button
+                          disabled={
+                            Object.entries(winningTicketsInRound).length < 1 ||
+                            claimStatus ||
+                            loadingRound ||
+                            isClaimLoading ||
+                            isBuyLoading
+                          }
+                          className="grid gap-1.5 grid-flow-col items-center px-4 py-2 my-2 text-xs font-semibold text-center duration-500 border border-dotted outline-none hover:rounded-xl rounded-tr-xl rounded-bl-xl bg-cyan-100/90 text-cyan-900 hover:bg-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={handleClaimTickets}
+                        >
+                          {isClaimLoading && (
+                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-cyan-300" />
+                          )}
+                          Claim Ticket
+                          {Object.entries(winningTicketsInRound).length !== 1 &&
+                            "s"}
+                        </button>
+                      </div>
+                    ) : (
+                      !loadingRound &&
+                      Number(ticketRewardsInRound) > 0 && (
+                        <div className="text-center text-xs text-cyan-100 uppercase -mt-1 mb-3">
+                          Congratulations, you won{" "}
+                          <strong>{ticketRewardsInRound}</strong> XTZ! (~$
+                          {(Number(ticketRewardsInRound) * 2789.239).toFixed(3)}
+                          )
                         </div>
-                      ) : (
-                        !loadingRound && Number(ticketRewardsInRound) > 0 && (
-                          <div className="text-center text-xs text-cyan-100 uppercase -mt-1 mb-3">
-                            Congratulations, you won <strong>{ticketRewardsInRound}</strong> XTZ!
-                          </div>
-                        )
                       )
-                    }
+                    )}
 
                     <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
 
@@ -1237,36 +1371,43 @@ const Trophy = () => {
                       </div>
                     )}
 
-                    {
-                      isConnected && (
-                        <table className="min-w-full text-cyan-50 text-sm font-semibold mb-5 mt-2">
-                          <thead>
-                            <tr className="uppercase tracking-wider text-center justify-items-center text-cyan-400 text-[11px]">
-                              <th className="py-2 px-4">#</th>
-                              <th className="py-2 px-4">Date</th>
-                              <th className="py-2 px-4">Your Tickets</th>
-                              <th className="py-2 px-4"></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {userRoundInfo.map((round) => (
-                              <tr key={round.number} className="border-b border-gray-700 text-center">
-                                <td className="py-2 px-4">{round.number}</td>
-                                <td className="py-2 px-4">{round.date}</td>
-                                <td className="py-2 px-4 grid grid-flow-col justify-end items-center text-cyan-500">
-                                  <span className="text-cyan-50">{round.tickets}</span>
-                                  <span className="scale-50">🔘</span>
-                                  <PiCaretRightBold title="View Round Info" onClick={() => {
+                    {isConnected && (
+                      <table className="min-w-full text-cyan-50 text-sm font-semibold mb-5 mt-2">
+                        <thead>
+                          <tr className="uppercase tracking-wider text-center justify-items-center text-cyan-400 text-[11px]">
+                            <th className="py-2 px-4">#</th>
+                            <th className="py-2 px-4">Date</th>
+                            <th className="py-2 px-4">Your Tickets</th>
+                            <th className="py-2 px-4"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {userRoundInfo.map((round) => (
+                            <tr
+                              key={round.number}
+                              className="border-b border-gray-700 text-center"
+                            >
+                              <td className="py-2 px-4">{round.number}</td>
+                              <td className="py-2 px-4">{round.date}</td>
+                              <td className="py-2 px-4 grid grid-flow-col justify-end items-center text-cyan-500">
+                                <span className="text-cyan-50">
+                                  {round.tickets}
+                                </span>
+                                <span className="scale-50">🔘</span>
+                                <PiCaretRightBold
+                                  title="View Round Info"
+                                  onClick={() => {
                                     setRoundNo(round.number);
                                     setRoundHistory("All");
-                                  }} className="scale-125 hover:scale-150 duration-500 cursor-pointer" />
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      )
-                    }
+                                  }}
+                                  className="scale-125 hover:scale-150 duration-500 cursor-pointer"
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
 
                     <hr className="w-4/5 mx-auto line-clamp-1 opacity-15" />
 
@@ -1427,9 +1568,9 @@ const Trophy = () => {
                   <div className="grid gap-2">
                     <div className="text-xl font-semibold">XTZ Injections</div>
                     <div className="ml-5 list-item">
-                      An sizable amount of XTZ from the treasury is added
-                      to lottery rounds over the course of a week. This XTZ is
-                      of course also included in rollovers!
+                      An sizable amount of XTZ from the treasury is added to
+                      lottery rounds over the course of a week. This XTZ is of
+                      course also included in rollovers!
                       {/* Read more in our
                       guide to{" "}
                       <Link to={""} className="text-cyan-400">
@@ -1654,11 +1795,12 @@ const Trophy = () => {
                 <div className="grid gap-2 pt-5 text-sm">
                   <button
                     onClick={handleBuy}
-                    className={`${(amtTicket === "" ||
-                      Number(amtTicket) === 0 ||
-                      isBuyLoading) &&
+                    className={`${
+                      (amtTicket === "" ||
+                        Number(amtTicket) === 0 ||
+                        isBuyLoading) &&
                       "opacity-50"
-                      } bg-cyan-800 hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
+                    } bg-cyan-800 hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
                     disabled={
                       amtTicket === "" ||
                       Number(amtTicket) === 0 ||
@@ -1667,18 +1809,20 @@ const Trophy = () => {
                   >
                     <div className="w-full">{mainButtonText}</div>
                     <div
-                      className={`${isBuyLoading
-                        ? "my-auto border border-x-cyan-700 w-5 h-5 rounded-full animate-spin"
-                        : "hidden"
-                        }`}
+                      className={`${
+                        isBuyLoading
+                          ? "my-auto border border-x-cyan-700 w-5 h-5 rounded-full animate-spin"
+                          : "hidden"
+                      }`}
                     />
                   </button>
                   <button
-                    className={`${(amtTicket === "" ||
-                      Number(amtTicket) === 0 ||
-                      isBuyLoading) &&
+                    className={`${
+                      (amtTicket === "" ||
+                        Number(amtTicket) === 0 ||
+                        isBuyLoading) &&
                       "opacity-50"
-                      } bg-cyan-800 items-center hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
+                    } bg-cyan-800 items-center hover:bg-cyan-700 duration-500 text-cyan-100 px-4 py-2.5 rounded-xl w-full flex justify-between`}
                     disabled={
                       amtTicket === "" ||
                       Number(amtTicket) === 0 ||
@@ -1717,7 +1861,10 @@ const Trophy = () => {
         <div>
           <div className="p-5 rounded-md">
             <div className="grid gap-2 mb-4">
-              <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Your Tickets"} />
+              <div
+                className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700"
+                children={"Your Tickets"}
+              />
               <div className="grid grid-flow-col items-center justify-between px-2 font-bold w-full">
                 <div className="w-fit flex gap-1 items-center">
                   <TfiTicket />
@@ -1727,23 +1874,26 @@ const Trophy = () => {
               </div>
             </div>
             <div className="m-auto max-h-[12em] overflow-y-scroll">
-              {Object.entries(ticketNumbersInLatestRound).length > 0 ? ticketNumbersInLatestRound.map((digits, arrayIndex) => (
-                <div
-                  key={arrayIndex}
-                  className="flex space-x-2 my-2 mx-3 items-center justify-center"
-                >
-                  {digits.map((digit, digitIndex) => {
-                    return (
-                      <div
-                        key={digitIndex}
-                        className="w-3/12 border h-fit text-center py-1 rounded-md"
-                        children={digit}
-                      />
-                    );
-                  })}
-                </div>
-              )) : <img src={evmbetLogo} className='w-8 animate-spin m-auto' />
-              }
+              {Object.entries(ticketNumbersInLatestRound).length > 0 ? (
+                ticketNumbersInLatestRound.map((digits, arrayIndex) => (
+                  <div
+                    key={arrayIndex}
+                    className="flex space-x-2 my-2 mx-3 items-center justify-center"
+                  >
+                    {digits.map((digit, digitIndex) => {
+                      return (
+                        <div
+                          key={digitIndex}
+                          className="w-3/12 border h-fit text-center py-1 rounded-md"
+                          children={digit}
+                        />
+                      );
+                    })}
+                  </div>
+                ))
+              ) : (
+                <img src={evmbetLogo} className="w-8 animate-spin m-auto" />
+              )}
             </div>
 
             <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
@@ -1775,77 +1925,81 @@ const Trophy = () => {
         <div>
           <div className="p-5 rounded-md">
             <div className="border-b-2 border-dashed py-4 pt-2 mb-2">
-              <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Winning Number"} />
+              <div
+                className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700"
+                children={"Winning Number"}
+              />
               <div className="grid gap-2 grid-flow-col">
-                {
-                  Number(latestRoundInfo.finalNumber)
-                    .toString()
-                    .substring(1)
-                    .split("")
-                    .reverse()
-                    .join("")
-                    .split("")
-                    .map((val, i) => (
-                      <div key={i} className="relative h-fit w-fit">
-                        <svg
-                          viewBox="0 0 32 32"
-                          color="text"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-12 md:w-16"
-                        >
-                          <circle
-                            cx="16"
-                            cy="16"
-                            r="16"
-                            fill={generateColorHash(i ** 2 + 1)}
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M24.343 3.132c4.576 5.74 4.208 14.125-1.106 19.439-5.709 5.709-14.966 5.709-20.675 0q-.42-.42-.798-.864C4.028 27.349 9.55 31.333 16 31.333c8.468 0 15.333-6.865 15.333-15.334 0-5.391-2.783-10.133-6.99-12.867"
-                            opacity=".1"
-                            style={{
-                              mixBlendMode: "multiply",
-                            }}
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M25.771 4.183c4.86 6.029 4.49 14.878-1.11 20.478s-14.448 5.97-20.477 1.111A15.3 15.3 0 0 0 16 31.332c8.468 0 15.333-6.864 15.333-15.332a15.3 15.3 0 0 0-5.562-11.817"
-                            opacity=".1"
-                            style={{
-                              mixBlendMode: "multiply",
-                            }}
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M3.49 24.868C.15 18.765.975 11.064 6.02 6.019 11.063.975 18.765.151 24.868 3.49A15.26 15.26 0 0 0 16 .667C7.532.667.667 7.532.667 16c0 3.304 1.045 6.364 2.823 8.868"
-                            fill="#fff"
-                            style={{
-                              mixBlendMode: "soft-light",
-                            }}
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M2.1 9.514a15.4 15.4 0 0 1 8.392-7.83q.081.072.158.15c1.834 1.833.262 3.91-1.989 6.16-2.25 2.251-4.327 3.823-6.16 1.99a4 4 0 0 1-.4-.47"
-                            fill="#fff"
-                            style={{
-                              mixBlendMode: "soft-light",
-                            }}
-                          />
-                        </svg>
-                        <div className="absolute text-3xl font-bold rotate-6 top-1.5 md:top-3 text-cyan-50 left-1/3">
-                          {val}
-                        </div>
+                {Number(roundInfo.finalNumber)
+                  .toString()
+                  .substring(1)
+                  .split("")
+                  .reverse()
+                  .join("")
+                  .split("")
+                  .map((val, i) => (
+                    <div key={i} className="relative h-fit w-fit">
+                      <svg
+                        viewBox="0 0 32 32"
+                        color="text"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-12 md:w-16"
+                      >
+                        <circle
+                          cx="16"
+                          cy="16"
+                          r="16"
+                          fill={generateColorHash(i ** 2 + 1)}
+                        />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M24.343 3.132c4.576 5.74 4.208 14.125-1.106 19.439-5.709 5.709-14.966 5.709-20.675 0q-.42-.42-.798-.864C4.028 27.349 9.55 31.333 16 31.333c8.468 0 15.333-6.865 15.333-15.334 0-5.391-2.783-10.133-6.99-12.867"
+                          opacity=".1"
+                          style={{
+                            mixBlendMode: "multiply",
+                          }}
+                        />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M25.771 4.183c4.86 6.029 4.49 14.878-1.11 20.478s-14.448 5.97-20.477 1.111A15.3 15.3 0 0 0 16 31.332c8.468 0 15.333-6.864 15.333-15.332a15.3 15.3 0 0 0-5.562-11.817"
+                          opacity=".1"
+                          style={{
+                            mixBlendMode: "multiply",
+                          }}
+                        />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M3.49 24.868C.15 18.765.975 11.064 6.02 6.019 11.063.975 18.765.151 24.868 3.49A15.26 15.26 0 0 0 16 .667C7.532.667.667 7.532.667 16c0 3.304 1.045 6.364 2.823 8.868"
+                          fill="#fff"
+                          style={{
+                            mixBlendMode: "soft-light",
+                          }}
+                        />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M2.1 9.514a15.4 15.4 0 0 1 8.392-7.83q.081.072.158.15c1.834 1.833.262 3.91-1.989 6.16-2.25 2.251-4.327 3.823-6.16 1.99a4 4 0 0 1-.4-.47"
+                          fill="#fff"
+                          style={{
+                            mixBlendMode: "soft-light",
+                          }}
+                        />
+                      </svg>
+                      <div className="absolute text-3xl font-bold rotate-6 top-1.5 md:top-3 text-cyan-50 left-1/3">
+                        {val}
                       </div>
-                    ))
-                }
+                    </div>
+                  ))}
               </div>
             </div>
             <div className="grid gap-2 mb-4">
-              <div className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700" children={"Your Tickets"} />
+              <div
+                className="p-2 font-bold uppercase text-start text-[10px] text-cyan-700"
+                children={"Your Tickets"}
+              />
               <div className="grid grid-flow-col items-center justify-between px-2 font-bold w-full">
                 <div className="w-fit flex gap-1 items-center">
                   <TfiTicket />
@@ -1882,36 +2036,42 @@ const Trophy = () => {
 
             <hr className="my-5 border-b-0.5 border-b-inherit w-1/2 m-auto" />
 
-            {
-              Object.entries(winningTicketsInRound).length < 1 ? (
-                <Tooltip color={"#155E75"} placement="topLeft" title={
+            {Object.entries(winningTicketsInRound).length < 1 ? (
+              <Tooltip
+                color={"#155E75"}
+                placement="topLeft"
+                title={
                   <div className="p-5 grid gap-2">
-                    <div>Tickets must match the winning number in the exact same order, starting from the first digit.</div>
+                    <div>
+                      Tickets must match the winning number in the exact same
+                      order, starting from the first digit.
+                    </div>
                     <div>If the winning number is "123456":</div>
                     <div>"120000" matches the first 2 digits.</div>
-                    <div>"000006" mathces the last digit, but since the first five digits are wrong, it doesn't win any prizes.</div>
+                    <div>
+                      "000006" mathces the last digit, but since the first five
+                      digits are wrong, it doesn't win any prizes.
+                    </div>
                   </div>
-                }>
-                  <div className="w-fit px-5 text-sm mx-auto mt-3 -mb-2 grid grid-flow-col justify-center items-center gap-2 font-bold text-cyan-800 hover:opacity-70 duration-500">
-                    <RiErrorWarningLine />
-                    <button
-                      className="underline underline-offset-2"
-                    >
-                      Why didn't I win?
-                    </button>
-                  </div>
-                </Tooltip>
-              ) : (
+                }
+              >
                 <div className="w-fit px-5 text-sm mx-auto mt-3 -mb-2 grid grid-flow-col justify-center items-center gap-2 font-bold text-cyan-800 hover:opacity-70 duration-500">
-                  <RiCheckFill />
-                  <span
-                    className=""
-                  >
-                    Congratulations, you won <strong>{ticketRewardsInRound}</strong> XTZ!
-                  </span>
+                  <RiErrorWarningLine />
+                  <button className="underline underline-offset-2">
+                    Why didn't I win?
+                  </button>
                 </div>
-              )
-            }
+              </Tooltip>
+            ) : (
+              <div className="w-fit px-5 text-sm mx-auto mt-3 -mb-2 grid grid-flow-col justify-center items-center gap-2 font-bold text-cyan-800 hover:opacity-70 duration-500">
+                <RiCheckFill />
+                <span className="">
+                  Congratulations, you won{" "}
+                  <strong>{ticketRewardsInRound}</strong> XTZ! (~$
+                  {(Number(ticketRewardsInRound) * 2789.239).toFixed(3)})
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </Modal>
