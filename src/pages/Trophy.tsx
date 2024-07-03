@@ -1202,7 +1202,7 @@ const Trophy = () => {
                                       </div> */}
                                   <div className="grid gap-2 my-2 justify-center items-center">
                                     <div className="space-x-1">
-                                      <span>You have</span>
+                                      <span>You had</span>
                                       <span
                                         children={amtTicketInRound}
                                         className="text-cyan-50 w-32 text-sm font-semibold"
@@ -1568,7 +1568,7 @@ const Trophy = () => {
                   <div className="grid gap-2">
                     <div className="text-xl font-semibold">XTZ Injections</div>
                     <div className="ml-5 list-item">
-                      An sizable amount of XTZ from the treasury is added to
+                      A sizable amount of XTZ from the treasury is added to
                       lottery rounds over the course of a week. This XTZ is of
                       course also included in rollovers!
                       {/* Read more in our

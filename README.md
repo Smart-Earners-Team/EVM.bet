@@ -43,7 +43,7 @@ EVM.bet is built with a vision to revolutionize on-chain gaming, offering a uniq
 
 Website: [EVM.bet](https://EVM.bet)
 
-MVP video: 
+MVP video: https://youtu.be/KGT1CNoT1_Y
 
 Lottery contract: [0xC1D2eB15b09dE06d1c70559963B731D2f2965d82](https://testnet-explorer.etherlink.com/address/0xC1D2eB15b09dE06d1c70559963B731D2f2965d82)
 
