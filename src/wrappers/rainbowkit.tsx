@@ -10,21 +10,24 @@ import {
     QueryClientProvider,
     QueryClient,
 } from "@tanstack/react-query";
-import { MainnetZTestnet, testXTZ } from '../utils/customChains/chains';
+import { /* MainnetZTestnet, testXTZ, */ UbitTestnet } from '../utils/customChains/chains';
 
 const config = getDefaultConfig({
     appName: 'EVM.bet',
     projectId: 'YOUR_PROJECT_ID',
-    chains: [testXTZ, MainnetZTestnet],
+    chains: [/* testXTZ, MainnetZTestnet, */ UbitTestnet],
     ssr: false, // true if your dApp uses server side rendering (SSR)
 });
 
 const queryClient = new QueryClient();
 
 export const defaultRPCs = [
-    "https://node.ghostnet.etherlink.com",
+    // "https://node.ghostnet.etherlink.com",
     // "https://etherlink-ghostnet-6lcp5r.zeeve.net/rpc",
-    "https://testnet-rpc.mainnetz.io",
+    // "https://testnet-rpc.mainnetz.io",
+    "https://testnet-rpc.ubitscan.io/",
+    "https://rpc.ubitscan.io/",
+    // "https://eth-rpc-api-testnet.thetatoken.org/rpc",
   ];
 
 const theme = darkTheme({
@@ -39,7 +42,7 @@ export const RainbowKit = ({ children }: { children: React.ReactNode }) => {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider coolMode theme={theme} initialChain={testXTZ} appInfo={{
+                <RainbowKitProvider coolMode theme={theme} initialChain={UbitTestnet} appInfo={{
                     appName: "EVM.bet",
                     // disclaimer: Disclaimer
                 }}>

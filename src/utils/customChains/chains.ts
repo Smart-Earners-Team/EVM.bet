@@ -167,6 +167,66 @@ export const testXTZ : Chain = {
     },
 } as const satisfies Chain;
 
+export const UbitTestnet : Chain = {
+    id: 44433,
+    name: "UBIT Testnet",
+    iconUrl:
+        "https://s2.coinmarketcap.com/static/img/coins/200x200/14914.png",
+        iconBackground: "#fff",
+    nativeCurrency: {
+        name: "USC (UBIT CHAIN)",
+        symbol: "tUSC",
+        decimals: 18,
+    },
+    rpcUrls: {
+        default: {
+            http: [ "https://testnet-rpc.ubitscan.io/" ],
+        },
+    },
+    blockExplorers: {
+        default: {
+            name: "Ubit Scan",
+            url: "https://testnet.ubitscan.io/",
+        },
+    },
+    contracts: {
+        multicall3: {
+            address: "0xA7f3d2dEa7a53E7A9FEbBdE5Cf7C69d39D065030",
+            blockCreated: 2397199,
+        },
+    },
+} as const satisfies Chain;
+
+export const ThetaTestnet : Chain = {
+    id: 365,
+    name: "Theta Testnet",
+    iconUrl:
+        "https://s2.coinmarketcap.com/static/img/coins/200x200/3822.png",
+        iconBackground: "#fff",
+    nativeCurrency: {
+        name: "Theta Fuel",
+        symbol: "TFUEL",
+        decimals: 18,
+    },
+    rpcUrls: {
+        default: {
+            http: [ "https://eth-rpc-api-testnet.thetatoken.org/rpc" ],
+        },
+    },
+    blockExplorers: {
+        default: {
+            name: "Theta Scan",
+            url: "https://testnet-explorer.thetatoken.org/",
+        },
+    },
+    contracts: {
+        multicall3: {
+            address: "0x49e240af316912edfe7469c32357209ec6153cb0",
+            blockCreated: 27075626,
+        },
+    },
+} as const satisfies Chain;
+
 export const EtherlinkMainnetBeta : Chain = {
     id: 128123,
     name: "Etherlink Mainnet Beta",

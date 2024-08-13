@@ -12,7 +12,7 @@ const Landing = () => {
                     <div className="py-6 relative">
                         <h1 className="font-black text-4xl md:text-5xl">EVM.bet Lottery</h1>
                         <p className="my-5">
-                            Playing gives you a chance to win huge XTZ prizes! No middleman, no KYC, no tampering, no bullsh*t. 
+                            Playing gives you a chance to win huge USC prizes! No middleman, no KYC, no tampering, no bullsh*t. 
                         </p>
                         <img src={evmbetLogo} className="absolute p-5 -top-1/2 opacity-5 w-[100rem] z-0" />
                     </div>

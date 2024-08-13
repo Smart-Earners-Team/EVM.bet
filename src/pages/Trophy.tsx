@@ -892,7 +892,7 @@ const Trophy = () => {
                                 )
                               ).toLocaleString()
                             : 0}{" "}
-                          XTZ
+                          USC
                         </div>
                       </div>
                     </div>
@@ -957,7 +957,7 @@ const Trophy = () => {
                                   )
                                 ).toFixed(3)}
                               </span>
-                              <span className="text-sm">XTZ</span>
+                              <span className="text-sm">USC</span>
                             </div>
                             <div className="text-xs opacity-85">
                               {/* ~${val.usd.toLocaleString()} */}
@@ -1265,7 +1265,7 @@ const Trophy = () => {
                       Number(ticketRewardsInRound) > 0 && (
                         <div className="text-center text-xs text-cyan-100 uppercase -mt-1 mb-3">
                           Congratulations, you won{" "}
-                          <strong>{ticketRewardsInRound}</strong> XTZ! (~$
+                          <strong>{ticketRewardsInRound}</strong> USC! (~$
                           {(Number(ticketRewardsInRound) * 2789.239).toFixed(3)}
                           )
                         </div>
@@ -1285,7 +1285,7 @@ const Trophy = () => {
                               ~${Number(prizeInUSD).toLocaleString()}
                             </div>
                             <div className="text-xs md:self-start">
-                              {Number(prizeInXTZ).toLocaleString()} XTZ
+                              {Number(prizeInXTZ).toLocaleString()} USC
                             </div>
                           </div>
                           {/* <div className="text-xs font-bold text-cyan-50">
@@ -1318,7 +1318,7 @@ const Trophy = () => {
                                       )
                                     ).toFixed(3)}
                                   </span>
-                                  <span className="text-sm">XTZ</span>
+                                  <span className="text-sm">USC</span>
                                 </div>
                                 <div className="text-xs opacity-85">
                                   {/* ~${val.usd.toLocaleString()} */}
@@ -1447,7 +1447,7 @@ const Trophy = () => {
                     </h1>
                     <p className="text-sm">
                       Prices are set when the round starts, equal to 5 USD in
-                      XTZ per ticket.
+                      USC per ticket.
                     </p>
                   </div>
                 </div>
@@ -1550,7 +1550,7 @@ const Trophy = () => {
                       Ticket Purchases
                     </div>
                     <div className="ml-5 list-item">
-                      100% of the XTZ paid by people buying tickets that round
+                      100% of the USC paid by people buying tickets that round
                       goes back into the prize pools.
                     </div>
                   </div>
@@ -1559,22 +1559,22 @@ const Trophy = () => {
                     <div className="text-xl font-semibold">Rollover Prizes</div>
                     <div className="ml-5 list-item">
                       After every round, if nobody wins in one of the prize
-                      brackets, the unclaimed XTZ for that bracket rolls over
+                      brackets, the unclaimed USC for that bracket rolls over
                       into the next round and are redistributed among the prize
                       pools.
                     </div>
                   </div>
 
                   <div className="grid gap-2">
-                    <div className="text-xl font-semibold">XTZ Injections</div>
+                    <div className="text-xl font-semibold">USC Injections</div>
                     <div className="ml-5 list-item">
-                      A sizable amount of XTZ from the treasury is added to
-                      lottery rounds over the course of a week. This XTZ is of
+                      A sizable amount of USC from the treasury is added to
+                      lottery rounds over the course of a week. This USC is of
                       course also included in rollovers!
                       {/* Read more in our
                       guide to{" "}
                       <Link to={""} className="text-cyan-400">
-                        XTZ Tokenomics
+                        USC Tokenomics
                       </Link> */}
                     </div>
                   </div>
@@ -1634,7 +1634,7 @@ const Trophy = () => {
                   Total cost:
                 </div>
                 <div className="text-cyan-800 font-semibold text-lg">
-                  ~{bulkTicketDiscount} <small>XTZ</small>
+                  ~{bulkTicketDiscount} <small>USC</small>
                 </div>
               </div>
               <div className="text-gray-700 mb-4">
@@ -1736,17 +1736,17 @@ const Trophy = () => {
                   pattern="\d*\.?\d*"
                   inputMode="decimal"
                 />
-                <span className="text-xs">~{bulkTicketDiscount} XTZ</span>
+                <span className="text-xs">~{bulkTicketDiscount} USC</span>
               </div>
               <div className="px-2 text-xs text-end opacity-90 text-cyan-950">
-                XTZ Balance:{" "}
+                USC Balance:{" "}
                 <span className="font-bold">
                   {Number(baseBalance).toLocaleString()}
                 </span>
               </div>
               {Number(baseBalance) < Number(bulkTicketDiscount) && (
                 <div className="px-2 mb-2 -mt-0.5 text-xs italic text-orange-600 text-end">
-                  {`Insufficient ${"XTZ"} Balance`}
+                  {`Insufficient ${"USC"} Balance`}
                 </div>
               )}
 
@@ -1763,9 +1763,9 @@ const Trophy = () => {
               </div>
 
               <div className="grid items-center justify-between grid-flow-col px-3 text-sm opacity-75">
-                <p className="text-sm">Cost (XTZ)</p>
+                <p className="text-sm">Cost (USC)</p>
                 <p className="uppercase">
-                  {purchaceCost || 0} <span className="text-xs">XTZ</span>
+                  {purchaceCost || 0} <span className="text-xs">USC</span>
                 </p>
               </div>
 
@@ -1777,7 +1777,7 @@ const Trophy = () => {
                   </span>
                 </div>
                 <p className="uppercase">
-                  ~{discountXTZ || 0} <span className="text-xs">XTZ</span>
+                  ~{discountXTZ || 0} <span className="text-xs">USC</span>
                 </p>
               </div>
 
@@ -1787,7 +1787,7 @@ const Trophy = () => {
                 </div>
                 <p className="font-bold uppercase opacity-95">
                   ~{bulkTicketDiscount}{" "}
-                  <span className="text-xs font-normal">XTZ</span>
+                  <span className="text-xs font-normal">USC</span>
                 </p>
               </div>
 
@@ -2067,7 +2067,7 @@ const Trophy = () => {
                 <RiCheckFill />
                 <span className="">
                   Congratulations, you won{" "}
-                  <strong>{ticketRewardsInRound}</strong> XTZ! (~$
+                  <strong>{ticketRewardsInRound}</strong> USC! (~$
                   {(Number(ticketRewardsInRound) * 2789.239).toFixed(3)})
                 </span>
               </div>

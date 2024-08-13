@@ -1,4 +1,4 @@
-import { FaTwitter, FaGithub } from "react-icons/fa";
+import { FaTwitter, /* FaGithub */ } from "react-icons/fa";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -18,13 +18,13 @@ const Footer = () => {
           >
             <FaTwitter />
           </a>
-          <a
+          {/* <a
             className="hover:scale-150 hover:text-cyan-300 duration-500"
             href="https://github.com/Smart-Earners-Team/EVM.bet/"
             target="_blank"
           >
             <FaGithub />
-          </a>
+          </a> */}
         </div>
       </div>
     </div>
