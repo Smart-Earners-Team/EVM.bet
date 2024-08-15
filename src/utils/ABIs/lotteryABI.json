@@ -2,8 +2,18 @@
   {
     "inputs": [
       {
-        "internalType": "address",
+        "internalType": "contract IRandomizer",
         "name": "_randomizerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IRegistry",
+        "name": "_registry",
+        "type": "address"
+      },
+      {
+        "internalType": "contract ILeaderboard",
+        "name": "_leaderboard",
         "type": "address"
       }
     ],
@@ -28,124 +38,6 @@
     ],
     "name": "AdminTokenRecovery",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lotteryId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint32[]",
-        "name": "_ticketNumbers",
-        "type": "uint32[]"
-      }
-    ],
-    "name": "buyTickets",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_randomizerAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint32",
-        "name": "_callbackGasLimit",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amountOfGas",
-        "type": "uint256"
-      }
-    ],
-    "name": "changeRandomizer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lotteryId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "_ticketIds",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint32[]",
-        "name": "_brackets",
-        "type": "uint32[]"
-      }
-    ],
-    "name": "claimTickets",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lotteryId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint32",
-        "name": "_callbackGasLimit",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amountOfGas",
-        "type": "uint256"
-      }
-    ],
-    "name": "closeLottery",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lotteryId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "_autoInjection",
-        "type": "bool"
-      }
-    ],
-    "name": "drawFinalNumberAndMakeLotteryClaimable",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lotteryId",
-        "type": "uint256"
-      }
-    ],
-    "name": "injectFunds",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
   },
   {
     "anonymous": false,
@@ -234,7 +126,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceTicketInMetis",
+        "name": "priceTicketInEth",
         "type": "uint256"
       },
       {
@@ -311,118 +203,6 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_tokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_tokenAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "recoverWrongTokens",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_maxNumberTicketsPerBuy",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMaxNumberTicketsPerBuy",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_minPriceTicket",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxPriceTicket",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMinAndMaxTicketPriceInMetis",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_operatorAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_treasuryAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_injectorAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setOperatorAndTreasuryAndInjectorAddresses",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_endTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_priceTicketInMetis",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_discountDivisor",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256[6]",
-        "name": "_rewardsBreakdown",
-        "type": "uint256[6]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_treasuryFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "startLottery",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -479,16 +259,103 @@
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
         "internalType": "address",
-        "name": "newOwner",
+        "name": "admin",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "name": "TransactionExecuted",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_LENGTH_LOTTERY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_TREASURY_FEE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MIN_DISCOUNT_DIVISOR",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MIN_LENGTH_LOTTERY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_lotteryId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32[]",
+        "name": "_ticketNumbers",
+        "type": "uint32[]"
+      },
+      {
+        "internalType": "address",
+        "name": "ref",
         "type": "address"
       }
     ],
-    "name": "transferOwnership",
+    "name": "buyTickets",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -521,6 +388,75 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_randomizerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_callbackGasLimit",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountOfGas",
+        "type": "uint256"
+      }
+    ],
+    "name": "changeRandomizer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_lotteryId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_ticketIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint32[]",
+        "name": "_brackets",
+        "type": "uint32[]"
+      }
+    ],
+    "name": "claimTickets",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_lotteryId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_callbackGasLimit",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountOfGas",
+        "type": "uint256"
+      }
+    ],
+    "name": "closeLottery",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "currentLotteryId",
     "outputs": [
@@ -547,6 +483,50 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_lotteryId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_autoInjection",
+        "type": "bool"
+      }
+    ],
+    "name": "drawFinalNumberAndMakeLotteryClaimable",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "message",
+        "type": "bytes"
+      }
+    ],
+    "name": "execute",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_lotteryId",
+        "type": "uint256"
+      }
+    ],
+    "name": "injectFunds",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "injectorAddress",
     "outputs": [
@@ -561,25 +541,12 @@
   },
   {
     "inputs": [],
-    "name": "MAX_LENGTH_LOTTERY",
+    "name": "leaderboard",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "contract ILeaderboard",
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MAX_TREASURY_FEE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -601,32 +568,6 @@
   {
     "inputs": [],
     "name": "maxPriceTicket",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MIN_DISCOUNT_DIVISOR",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MIN_LENGTH_LOTTERY",
     "outputs": [
       {
         "internalType": "uint256",
@@ -703,6 +644,144 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_tokenAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokenAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "recoverWrongTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registry",
+    "outputs": [
+      {
+        "internalType": "contract IRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_maxNumberTicketsPerBuy",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxNumberTicketsPerBuy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_minPriceTicket",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxPriceTicket",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMinAndMaxTicketPriceInEth",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_operatorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_treasuryAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_injectorAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setOperatorAndTreasuryAndInjectorAddresses",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_endTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_priceTicketInEth",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_discountDivisor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[6]",
+        "name": "_rewardsBreakdown",
+        "type": "uint256[6]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_treasuryFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "startLottery",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "treasuryAddress",
     "outputs": [
@@ -757,7 +836,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "priceTicketInMetis",
+            "name": "priceTicketInEth",
             "type": "uint256"
           },
           {
@@ -777,7 +856,7 @@
           },
           {
             "internalType": "uint256[6]",
-            "name": "MetisPerBracket",
+            "name": "EthPerBracket",
             "type": "uint256[6]"
           },
           {
@@ -797,7 +876,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amountCollectedInMetis",
+            "name": "amountCollectedInEth",
             "type": "uint256"
           },
           {

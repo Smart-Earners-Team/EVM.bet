@@ -1,57 +1,62 @@
-import '@rainbow-me/rainbowkit/styles.css';
+import "@rainbow-me/rainbowkit/styles.css";
 import {
-    darkTheme,
-    // DisclaimerComponent,
-    getDefaultConfig,
-    RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
-import { WagmiProvider } from 'wagmi';
+  darkTheme,
+  // DisclaimerComponent,
+  getDefaultConfig,
+  RainbowKitProvider,
+} from "@rainbow-me/rainbowkit";
+import { WagmiProvider } from "wagmi";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import {
-    QueryClientProvider,
-    QueryClient,
-} from "@tanstack/react-query";
-import { /* MainnetZTestnet, testXTZ, */ UbitTestnet } from '../utils/customChains/chains';
+  KakarotSepolia /* UbitTestnet */,
+} from /* MainnetZTestnet, testXTZ, */ "../utils/customChains/chains";
 
 const config = getDefaultConfig({
-    appName: 'EVM.bet',
-    projectId: 'YOUR_PROJECT_ID',
-    chains: [/* testXTZ, MainnetZTestnet, */ UbitTestnet],
-    ssr: false, // true if your dApp uses server side rendering (SSR)
+  appName: "EVM.bet",
+  projectId: "YOUR_PROJECT_ID",
+  chains: [/* testXTZ, MainnetZTestnet, */ /* UbitTestnet */ KakarotSepolia],
+  ssr: false, // true if your dApp uses server side rendering (SSR)
 });
 
 const queryClient = new QueryClient();
 
 export const defaultRPCs = [
-    // "https://node.ghostnet.etherlink.com",
-    // "https://etherlink-ghostnet-6lcp5r.zeeve.net/rpc",
-    // "https://testnet-rpc.mainnetz.io",
-    "https://testnet-rpc.ubitscan.io/",
-    "https://rpc.ubitscan.io/",
-    // "https://eth-rpc-api-testnet.thetatoken.org/rpc",
-  ];
+  // "https://node.ghostnet.etherlink.com",
+  // "https://etherlink-ghostnet-6lcp5r.zeeve.net/rpc",
+  // "https://testnet-rpc.mainnetz.io",
+  // "https://testnet-rpc.ubitscan.io/",
+  // "https://rpc.ubitscan.io/",
+  // "https://eth-rpc-api-testnet.thetatoken.org/rpc",
+  "https://sepolia-rpc.kakarot.org/",
+];
 
 const theme = darkTheme({
-    accentColor: '#3CB0D9',
-    accentColorForeground: 'white',
-    borderRadius: 'small',
-    fontStack: 'system',
-    overlayBlur: 'large',
+  accentColor: "#3CB0D9",
+  accentColorForeground: "white",
+  borderRadius: "small",
+  fontStack: "system",
+  overlayBlur: "large",
 });
 
 export const RainbowKit = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <WagmiProvider config={config}>
-            <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider coolMode theme={theme} initialChain={UbitTestnet} appInfo={{
-                    appName: "EVM.bet",
-                    // disclaimer: Disclaimer
-                }}>
-                    {children}
-                </RainbowKitProvider>
-            </QueryClientProvider>
-        </WagmiProvider>
-    )
-}
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider
+          coolMode
+          theme={theme}
+          initialChain={KakarotSepolia}
+          appInfo={{
+            appName: "EVM.bet",
+            // disclaimer: Disclaimer
+          }}
+        >
+          {children}
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+};
 
 // const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
 //     <Text>
@@ -61,4 +66,3 @@ export const RainbowKit = ({ children }: { children: React.ReactNode }) => {
 //       <Link href="https://disclaimer.xyz">Disclaimer</Link>
 //     </Text>
 //   );
-  

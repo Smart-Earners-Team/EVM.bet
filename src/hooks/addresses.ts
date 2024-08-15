@@ -12,7 +12,8 @@ export const addresses = {
     // 128123: "0xd820a73F78c47Ab06e7d6624e7d081ff35a2b9Ec"
     // 128123: "0x68B5E924DDDdA92dEA7F38f8dCB3386d4854c18F"
     128123: "0xC1D2eB15b09dE06d1c70559963B731D2f2965d82",
-    1802203764: "0xCb87E834A114aA23E739e028296E0e1763a6d048",
+    // 1802203764: "0xCb87E834A114aA23E739e028296E0e1763a6d048",
+    1802203764: "0x1f88Aec1f343569e3a041dA875c41d9839DbEcf9",
   },
   randomizer: <AddressType>{
     9768: "",
@@ -29,5 +30,8 @@ export const addresses = {
   },
   leaderboard: <AddressType>{
     1802203764: "0x8b678D1d4c012066F7Fb84B80C09b546E0E51380", // with logic @ 0x8a81348e22B60f79610f2fa6308F61e6c4d10EA0
+  },
+  pragmaEthFeed: <AddressType>{
+    1802203764: "0x3899D87a02eFaB864C9306DCd2EDe06B90f28B14",
   },
 };

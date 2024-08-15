@@ -1,10 +1,13 @@
-import React from 'react';
-import { RainbowKit } from './rainbowkit';
+import React from "react";
+import { RainbowKit } from "./rainbowkit";
+import { RefContextProvider } from "../contexts/referralContext";
 
-export const AppWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   return (
-    <RainbowKit>
-      {children}
-    </RainbowKit>
+    <RefContextProvider>
+      <RainbowKit>{children}</RainbowKit>
+    </RefContextProvider>
   );
 };

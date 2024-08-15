@@ -1,5 +1,5 @@
 import { useAccount, useChainId, useConfig, useSwitchChain } from "wagmi";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import { LuArrowLeft, LuArrowRight, LuArrowRightToLine } from "react-icons/lu";
 // import { Link } from "react-router-dom";
@@ -9,7 +9,7 @@ import { Layout } from "../components/Layout";
 import {
   calculatePrizeForBulkTickets,
   getCurrentPrizeInUSD,
-  getCurrentprizeInXTZ,
+  getCurrentprizeInETH,
   getLastLotteryId,
   getLotteryId,
   getLotteryInfo,
@@ -29,7 +29,7 @@ import {
   txReceipt,
   viewRewardsForTicketId,
 } from "../hooks/Lottery/calls";
-import { getTokenBalance } from "../hooks/getDetails";
+import { encodeToBase64, getTokenBalance } from "../hooks/getDetails";
 import { useEthersSigner } from "../hooks/wagmiSigner";
 import { TiLinkOutline, TiTick, TiWarning } from "react-icons/ti";
 import { shortenAddress } from "../hooks/shortenAddress";
@@ -38,6 +38,8 @@ import { RiCheckFill, RiErrorWarningLine } from "react-icons/ri";
 import hourGlass from "../assets/hourglassNewColored.gif";
 import { PiCaretRightBold } from "react-icons/pi";
 import CountdownComponent from "../hooks/countdown";
+import { CopyToClipboard } from "../components/CopyPaste/CopyPasteButton";
+import { RefContext } from "../contexts/referralContext";
 
 const evmbetLogo = "/logo.png";
 
@@ -66,7 +68,10 @@ type BracketResult = {
 const Trophy = () => {
   const { address, chain, isConnected } = useAccount();
 
-  // console.log(address)
+  const { state } = useContext(RefContext);
+  const parentAddress = state.upline;
+
+  // console.log("parentAddress", parentAddress);
 
   const config = useConfig();
   const chains = config.chains;
@@ -106,7 +111,7 @@ const Trophy = () => {
   );
   const [roundInfo, setRoundInfo] = useState<Lottery>({} as Lottery);
   const [roundHistory, setRoundHistory] = useState<string>("All");
-  const [prizeInXTZ, setprizeInXTZ] = useState<string>("0");
+  const [prizeInETH, setprizeInETH] = useState<string>("0");
   const [prizeInUSD, setPrizeInUSD] = useState<string>("0");
   const [prizeInUSD2, setPrizeInUSD2] = useState<string>("0");
   const [moreR, setMoreR] = useState<boolean>(false);
@@ -130,7 +135,7 @@ const Trophy = () => {
   const [isClaimLoading, setisClaimLoading] = useState<boolean>(false);
 
   const [bulkTicketDiscount, setBulkTicketDiscount] = useState<string>("0");
-  const [discountXTZ, setDiscountXTZ] = useState<string>("0");
+  const [discountETH, setDiscountETH] = useState<string>("0");
   const [discountPercentage, setDiscountPercentage] = useState<string>("0");
   const [purchaceCost, setPurchaceCost] = useState<string>("0");
 
@@ -153,6 +158,9 @@ const Trophy = () => {
     seconds: 0,
     message: "",
   });
+
+  const url = new URL(window.location.href);
+  const domain = url.port ? `${url.hostname}:${url.port}` : url.hostname;
 
   function hasDuplicateArrays(arrays: string[][]): boolean {
     const numberArr: number[][] = arrays.map((subArr) =>
@@ -287,8 +295,8 @@ const Trophy = () => {
     setRoundInfo(res1);
     setLatestRoundInfo(res2);
 
-    setprizeInXTZ(String(await getCurrentprizeInXTZ(String(roundNo), cID)));
-    // console.log(await getCurrentprizeInXTZ(String(roundNo), cID));
+    setprizeInETH(String(await getCurrentprizeInETH(String(roundNo), cID)));
+    // console.log(await getCurrentprizeInETH(String(roundNo), cID));
 
     setPrizeInUSD(String(await getCurrentPrizeInUSD(String(roundNo), cID)));
     // console.log(await getCurrentPrizeInUSD(String(roundNo), cID));
@@ -305,7 +313,7 @@ const Trophy = () => {
     // console.log(JSON.parse(JSON.stringify(roundInfo, (_, v) =>
     //     typeof v === 'bigint' ? Number(v) : v)));
     // console.log(latestRound);
-    // console.log(prizeInXTZ)
+    // console.log(prizeInETH)
     // console.log("prizeInUSD", prizeInUSD);
   }, [roundNo, roundHistory]);
 
@@ -325,13 +333,14 @@ const Trophy = () => {
     setisBuyLoading(true);
 
     try {
-      // console.log("going through")
+      // console.log("going through", parentAddress);
       const res = await buyTickets(
         String(latestRound),
         ticketNumbers,
         bulkTicketDiscount,
         cID,
-        signer
+        signer,
+        parentAddress
       );
 
       // console.log(res);
@@ -659,9 +668,9 @@ const Trophy = () => {
   };
 
   const fetchBulkTicketDiscount = async () => {
-    if (latestRoundInfo.priceTicketInMetis > BigInt(0)) {
+    if (latestRoundInfo.priceTicketInEth > BigInt(0)) {
       const cost =
-        Number(ethers.formatEther(latestRoundInfo.priceTicketInMetis)) *
+        Number(ethers.formatEther(latestRoundInfo.priceTicketInEth)) *
         Number(amtTicket);
 
       const res =
@@ -669,7 +678,7 @@ const Trophy = () => {
           ? ethers.formatEther(
               await calculatePrizeForBulkTickets(
                 latestRoundInfo.discountDivisor,
-                latestRoundInfo.priceTicketInMetis,
+                latestRoundInfo.priceTicketInEth,
                 Number(amtTicket),
                 cID,
                 await findCompatibleRPC(defaultRPCs, cID)
@@ -680,7 +689,7 @@ const Trophy = () => {
       const discountPercent = ((cost - Number(res)) / cost) * 100;
 
       setBulkTicketDiscount(String(Number(res)));
-      setDiscountXTZ((cost - Number(res)).toLocaleString());
+      setDiscountETH((cost - Number(res)).toLocaleString());
       setDiscountPercentage(discountPercent.toLocaleString());
       setPurchaceCost(cost.toLocaleString());
     }
@@ -885,14 +894,14 @@ const Trophy = () => {
                           ~${Number(prizeInUSD2).toLocaleString()}
                         </div>
                         <div className="text-xs md:self-start">
-                          {latestRoundInfo.amountCollectedInMetis > BigInt(0)
+                          {latestRoundInfo.amountCollectedInEth > BigInt(0)
                             ? Number(
                                 ethers.formatEther(
-                                  latestRoundInfo.amountCollectedInMetis
+                                  latestRoundInfo.amountCollectedInEth
                                 )
                               ).toLocaleString()
                             : 0}{" "}
-                          USC
+                          ETH
                         </div>
                       </div>
                     </div>
@@ -952,12 +961,12 @@ const Trophy = () => {
                                   (Number(val) / 10000) *
                                   Number(
                                     ethers.formatEther(
-                                      latestRoundInfo.amountCollectedInMetis
+                                      latestRoundInfo.amountCollectedInEth
                                     )
                                   )
                                 ).toFixed(3)}
                               </span>
-                              <span className="text-sm">USC</span>
+                              <span className="text-sm">ETH</span>
                             </div>
                             <div className="text-xs opacity-85">
                               {/* ~${val.usd.toLocaleString()} */}
@@ -1014,6 +1023,40 @@ const Trophy = () => {
                 <CustomConnect onChainChange={handleChainChange} />
               </div>
             )}
+
+            {/* Referral Input */}
+            {
+              isConnected && (
+                <div
+                  className={`grid self-center place-items-center gap-2 p-8 text-center shadow w-5xl border-2 border-dashed border-cyan-500/50 text-cyan-50 rounded-xl`}
+                >
+                  <p className="text-sm font-bold">
+                    Share your referral link and earn points whenever your
+                    friends purchase a ticket!
+                  </p>
+                  <div className="grid justify-between grid-flow-col p-3 border rounded-sm">
+                    <div
+                      id="ref"
+                      className="overflow-hidden text-sm text-ellipsis whitespace-nowrap"
+                    >
+                      {`https://${domain}/rewards/${encodeToBase64(
+                        String(address)
+                      )}`}
+                    </div>
+                    <CopyToClipboard targetId="ref" />
+                  </div>
+                </div>
+              ) /* : (
+              <div className="px-5 mx-auto my-5">
+                <div className="grid justify-between grid-flow-col">
+                  <CustomConnect onChainChange={handleChainChange} />
+                </div>
+                <p className="text-xs">
+                  Connect your wallet to view your referral link!
+                </p>
+              </div>
+            ) */
+            }
           </div>
 
           <div className="grid justify-around gap-8">
@@ -1265,7 +1308,7 @@ const Trophy = () => {
                       Number(ticketRewardsInRound) > 0 && (
                         <div className="text-center text-xs text-cyan-100 uppercase -mt-1 mb-3">
                           Congratulations, you won{" "}
-                          <strong>{ticketRewardsInRound}</strong> USC! (~$
+                          <strong>{ticketRewardsInRound}</strong> ETH! (~$
                           {(Number(ticketRewardsInRound) * 2789.239).toFixed(3)}
                           )
                         </div>
@@ -1285,7 +1328,7 @@ const Trophy = () => {
                               ~${Number(prizeInUSD).toLocaleString()}
                             </div>
                             <div className="text-xs md:self-start">
-                              {Number(prizeInXTZ).toLocaleString()} USC
+                              {Number(prizeInETH).toLocaleString()} ETH
                             </div>
                           </div>
                           {/* <div className="text-xs font-bold text-cyan-50">
@@ -1313,12 +1356,12 @@ const Trophy = () => {
                                       (Number(val) / 10000) *
                                       Number(
                                         ethers.formatEther(
-                                          roundInfo.amountCollectedInMetis
+                                          roundInfo.amountCollectedInEth
                                         )
                                       )
                                     ).toFixed(3)}
                                   </span>
-                                  <span className="text-sm">USC</span>
+                                  <span className="text-sm">ETH</span>
                                 </div>
                                 <div className="text-xs opacity-85">
                                   {/* ~${val.usd.toLocaleString()} */}
@@ -1446,8 +1489,8 @@ const Trophy = () => {
                       Buy Tickets!
                     </h1>
                     <p className="text-sm">
-                      Prices are set when the round starts, equal to 5 USD in
-                      USC per ticket.
+                      Prices are set when the round starts, equal to 2 USD in
+                      ETH per ticket.
                     </p>
                   </div>
                 </div>
@@ -1550,7 +1593,7 @@ const Trophy = () => {
                       Ticket Purchases
                     </div>
                     <div className="ml-5 list-item">
-                      100% of the USC paid by people buying tickets that round
+                      100% of the ETH paid by people buying tickets that round
                       goes back into the prize pools.
                     </div>
                   </div>
@@ -1559,22 +1602,22 @@ const Trophy = () => {
                     <div className="text-xl font-semibold">Rollover Prizes</div>
                     <div className="ml-5 list-item">
                       After every round, if nobody wins in one of the prize
-                      brackets, the unclaimed USC for that bracket rolls over
+                      brackets, the unclaimed ETH for that bracket rolls over
                       into the next round and are redistributed among the prize
                       pools.
                     </div>
                   </div>
 
                   <div className="grid gap-2">
-                    <div className="text-xl font-semibold">USC Injections</div>
+                    <div className="text-xl font-semibold">ETH Injections</div>
                     <div className="ml-5 list-item">
-                      A sizable amount of USC from the treasury is added to
-                      lottery rounds over the course of a week. This USC is of
+                      A sizable amount of ETH from the treasury is added to
+                      lottery rounds over the course of a week. This ETH is of
                       course also included in rollovers!
                       {/* Read more in our
                       guide to{" "}
                       <Link to={""} className="text-cyan-400">
-                        USC Tokenomics
+                        ETH Tokenomics
                       </Link> */}
                     </div>
                   </div>
@@ -1634,7 +1677,7 @@ const Trophy = () => {
                   Total cost:
                 </div>
                 <div className="text-cyan-800 font-semibold text-lg">
-                  ~{bulkTicketDiscount} <small>USC</small>
+                  ~{bulkTicketDiscount} <small>ETH</small>
                 </div>
               </div>
               <div className="text-gray-700 mb-4">
@@ -1736,17 +1779,17 @@ const Trophy = () => {
                   pattern="\d*\.?\d*"
                   inputMode="decimal"
                 />
-                <span className="text-xs">~{bulkTicketDiscount} USC</span>
+                <span className="text-xs">~{bulkTicketDiscount} ETH</span>
               </div>
               <div className="px-2 text-xs text-end opacity-90 text-cyan-950">
-                USC Balance:{" "}
+                ETH Balance:{" "}
                 <span className="font-bold">
                   {Number(baseBalance).toLocaleString()}
                 </span>
               </div>
               {Number(baseBalance) < Number(bulkTicketDiscount) && (
                 <div className="px-2 mb-2 -mt-0.5 text-xs italic text-orange-600 text-end">
-                  {`Insufficient ${"USC"} Balance`}
+                  {`Insufficient ${"ETH"} Balance`}
                 </div>
               )}
 
@@ -1763,9 +1806,9 @@ const Trophy = () => {
               </div>
 
               <div className="grid items-center justify-between grid-flow-col px-3 text-sm opacity-75">
-                <p className="text-sm">Cost (USC)</p>
+                <p className="text-sm">Cost (ETH)</p>
                 <p className="uppercase">
-                  {purchaceCost || 0} <span className="text-xs">USC</span>
+                  {purchaceCost || 0} <span className="text-xs">ETH</span>
                 </p>
               </div>
 
@@ -1777,7 +1820,7 @@ const Trophy = () => {
                   </span>
                 </div>
                 <p className="uppercase">
-                  ~{discountXTZ || 0} <span className="text-xs">USC</span>
+                  ~{discountETH || 0} <span className="text-xs">ETH</span>
                 </p>
               </div>
 
@@ -1787,7 +1830,7 @@ const Trophy = () => {
                 </div>
                 <p className="font-bold uppercase opacity-95">
                   ~{bulkTicketDiscount}{" "}
-                  <span className="text-xs font-normal">USC</span>
+                  <span className="text-xs font-normal">ETH</span>
                 </p>
               </div>
 
@@ -2067,7 +2110,7 @@ const Trophy = () => {
                 <RiCheckFill />
                 <span className="">
                   Congratulations, you won{" "}
-                  <strong>{ticketRewardsInRound}</strong> USC! (~$
+                  <strong>{ticketRewardsInRound}</strong> ETH! (~$
                   {(Number(ticketRewardsInRound) * 2789.239).toFixed(3)})
                 </span>
               </div>
