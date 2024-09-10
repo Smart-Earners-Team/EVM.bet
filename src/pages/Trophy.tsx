@@ -40,6 +40,7 @@ import { PiCaretRightBold } from "react-icons/pi";
 import CountdownComponent from "../hooks/countdown";
 import { CopyToClipboard } from "../components/CopyPaste/CopyPasteButton";
 import { RefContext } from "../contexts/referralContext";
+import { formatToSubExponential } from "../hooks/formatToSubExponential";
 
 const evmbetLogo = "/logo.png";
 
@@ -688,10 +689,10 @@ const Trophy = () => {
 
       const discountPercent = ((cost - Number(res)) / cost) * 100;
 
-      setBulkTicketDiscount(String(Number(res)));
-      setDiscountETH((cost - Number(res)).toLocaleString());
+      setBulkTicketDiscount(String(res));
+      setDiscountETH((cost - Number(res)).toFixed(8));
       setDiscountPercentage(discountPercent.toLocaleString());
-      setPurchaceCost(cost.toLocaleString());
+      setPurchaceCost(String(cost));
     }
   };
 
@@ -1819,8 +1820,12 @@ const Trophy = () => {
                     Bulk discount
                   </span>
                 </div>
-                <p className="uppercase">
-                  ~{discountETH || 0} <span className="text-xs">ETH</span>
+                <p
+                  title={discountETH}
+                  className="uppercase truncate hover:cursor-pointer"
+                >
+                  ~{formatToSubExponential(discountETH) || 0}{" "}
+                  <span className="text-xs">ETH</span>
                 </p>
               </div>
 
