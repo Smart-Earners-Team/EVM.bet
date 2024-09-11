@@ -1594,7 +1594,7 @@ const Trophy = () => {
                       Ticket Purchases
                     </div>
                     <div className="ml-5 list-item">
-                      100% of the ETH paid by people buying tickets that round
+                      100% of the ETH paid by people buying tickets each round
                       goes back into the prize pools.
                     </div>
                   </div>
