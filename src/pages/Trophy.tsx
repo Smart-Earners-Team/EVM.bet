@@ -335,6 +335,15 @@ const Trophy = () => {
 
     try {
       // console.log("going through", parentAddress);
+      // console.log({
+      //   latestRound,
+      //   ticketNumbers,
+      //   bulkTicketDiscount,
+      // signer: typeof signer,
+      //   cID,
+      //   parentAddress,
+      // });
+
       const res = await buyTickets(
         String(latestRound),
         ticketNumbers,
@@ -689,7 +698,7 @@ const Trophy = () => {
 
       const discountPercent = ((cost - Number(res)) / cost) * 100;
 
-      setBulkTicketDiscount(String(res));
+      setBulkTicketDiscount(res);
       setDiscountETH((cost - Number(res)).toFixed(8));
       setDiscountPercentage(discountPercent.toLocaleString());
       setPurchaceCost(String(cost));
@@ -2155,7 +2164,7 @@ const Trophy = () => {
             </div>
           )}
           <a
-            href={`${chain?.blockExplorers?.etherscan?.url}tx/${txReceipt.hash}`}
+            href={`${chain?.blockExplorers?.default.url}tx/${txReceipt.hash}`}
             target="_blank"
             className="flex items-center gap-2 mx-auto text-center duration-500 w-fit hover:text-emerald-700 hover:underline underline-offset-4"
             title="Transaction Hash"

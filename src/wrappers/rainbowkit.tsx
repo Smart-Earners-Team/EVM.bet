@@ -27,7 +27,8 @@ export const defaultRPCs = [
   // "https://testnet-rpc.ubitscan.io/",
   // "https://rpc.ubitscan.io/",
   // "https://eth-rpc-api-testnet.thetatoken.org/rpc",
-  "https://sepolia-rpc.kakarot.org/",
+  // "https://sepolia-rpc.kakarot.org/",
+  "https://sepolia-rpc-priority.kakarot.org/",
 ];
 
 const theme = darkTheme({

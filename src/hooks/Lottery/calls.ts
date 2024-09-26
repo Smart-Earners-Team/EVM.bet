@@ -46,7 +46,7 @@ const buyTickets = async (
   // console.log(contract);
 
   // console.log(lotteryId);
-  // console.log(ticketNumbers);
+  // console.log({ tk, value: ethers.parseEther(amount) });
 
   const tx = await contract.buyTickets(
     lotteryId,

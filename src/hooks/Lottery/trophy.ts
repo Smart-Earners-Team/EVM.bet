@@ -120,13 +120,13 @@ export const calculatePrizeForBulkTickets = async (
     ticketPrice,
     ticketsNumber
   );
-  // console.log(res);
+  console.log(res);
   return res;
 };
 
 export async function getEthPrice() {
   const contract = useContractInitializer({
-    rpc: "https://sepolia-rpc.kakarot.org/",
+    rpc: await findCompatibleRPC(defaultRPCs),
     contractABI: pragmaEthFeedABI,
     contractAddress: addresses.pragmaEthFeed[1802203764],
   });

@@ -207,6 +207,7 @@ export const KakarotSepolia: Chain = {
   },
   rpcUrls: {
     default: {
+      // http: ["https://sepolia-rpc-priority.kakarot.org/"],
       http: ["https://sepolia-rpc.kakarot.org/"],
     },
   },
